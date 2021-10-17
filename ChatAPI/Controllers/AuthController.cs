@@ -14,6 +14,7 @@ namespace ChatAPI.Controllers
 {
     [ApiVersion("1.0")]
     [ApiController]
+    [Route("/api/v{version:apiVersion}/[controller]/[action]")]
     public class AuthController : BaseController
     {
         private readonly IAuthenticationService _authenticationService;
@@ -30,7 +31,6 @@ namespace ChatAPI.Controllers
         /// </summary>
         /// <param name="userCredentials"></param>
         /// <returns></returns>
-        [Route("/api/Login")]
         [HttpPost]
         public async Task<ActionResult<ResultContainer<AccessTokenDto>>> LoginAsync(UserCredentialsDto userCredentials)
         {
@@ -43,7 +43,6 @@ namespace ChatAPI.Controllers
         /// </summary>
         /// <param name="userCredentials"></param>
         /// <returns></returns>
-        [Route("/api/Register")]
         [HttpPost]
         public async Task<ActionResult<ResultContainer<UserDto>>> RegisterAsync(UserCredentialsDto userCredentials)
         {
@@ -56,7 +55,6 @@ namespace ChatAPI.Controllers
         /// </summary>
         /// <param name="refreshToken"></param>
         /// <returns></returns>
-        [Route("/api/Token/Refresh")]
         [HttpPost]
         [Authorize(AuthenticationSchemes = "Cookies")]
         public async Task<ActionResult<ResultContainer<AccessTokenDto>>> RefreshTokenAsync(RefreshTokenDto refreshToken)
@@ -69,7 +67,6 @@ namespace ChatAPI.Controllers
         /// Logout
         /// </summary>
         /// <returns></returns>
-        [Route("/api/Logout")]
         [HttpPost]
         [Authorize(AuthenticationSchemes = "Cookies")]
         public async Task<ActionResult> Logout()

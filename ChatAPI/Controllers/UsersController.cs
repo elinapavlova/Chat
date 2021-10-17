@@ -6,7 +6,7 @@ namespace ChatAPI.Controllers
 {
     [ApiVersion("1.0")]
     [ApiController]
-    [Route("/api/[controller]")]
+    [Route("/api/v{version:apiVersion}/[controller]")]
     public class UsersController : BaseController
     {
         private readonly IUserService _userService;
