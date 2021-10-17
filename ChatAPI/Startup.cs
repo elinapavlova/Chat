@@ -72,9 +72,7 @@ namespace ChatAPI
             
             var mapperConfig = new MapperConfiguration(mc =>
             {
-                mc.AddProfile(new DtoToModelProfile());
-                mc.AddProfile(new ModelToDtoProfile());
-                mc.AddProfile(new ModelToResultContainerProfile());
+                mc.AddProfile(new AppProfile());
             });
             var mapper = mapperConfig.CreateMapper();
             services.AddSingleton(mapper);

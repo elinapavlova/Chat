@@ -2,7 +2,6 @@
 using AutoMapper;
 using Infrastructure.Result;
 using Models;
-using Models.Base;
 using Models.Dtos;
 using Models.Dtos.Room;
 using Models.Dtos.Token;
@@ -11,10 +10,33 @@ using Models.Token;
 
 namespace Infrastructure.Profiles
 {
-    public class ModelToResultContainerProfile : Profile
+    public class AppProfile : Profile
     {
-        public ModelToResultContainerProfile()
+        public AppProfile()
         {
+            // Dto to Model
+            CreateMap<UserCredentialsDto, User>();
+            CreateMap<RoomDto, Room>();
+            CreateMap<MessageResponseDto, Message>();
+            
+            // Model to Dto
+            CreateMap<User, UserDto>();
+            CreateMap<User, UserCredentialsDto>();
+            CreateMap<Room, RoomDto>();
+            CreateMap<Room, RoomResponseDto>();
+            CreateMap<Message, MessageResponseDto>();
+            CreateMap<AccessToken, AccessTokenDto>()
+                .ForMember(a => a.AccessToken, 
+                    opt => 
+                        opt.MapFrom(a => a.Token))
+                .ForMember(a => a.RefreshToken, 
+                    opt => 
+                        opt.MapFrom(a => a.RefreshToken.Token))
+                .ForMember(a => a.Expiration, 
+                    opt => 
+                        opt.MapFrom(a => a.Expiration));
+            
+            // Model to ResultContainer
             CreateMap<User, ResultContainer<UserDto>>()
                 .ForMember("Data", opt => 
                     opt.MapFrom(u => u));
