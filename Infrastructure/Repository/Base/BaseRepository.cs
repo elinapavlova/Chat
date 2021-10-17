@@ -50,15 +50,15 @@ namespace Infrastructure.Repository.Base
         {
             sort ??= new FilterSortDto
             {
-                ColumnName = nameof(BaseModel.Date),
+                ColumnName = nameof(BaseModel.DateCreated),
                 IsDescending = true
             };
 
             return sort.ColumnName switch
             {
-                nameof(BaseModel.Date) => sort.IsDescending
-                    ? source.OrderByDescending(p => p.Date)
-                    : source.OrderBy(p => p.Date),
+                nameof(BaseModel.DateCreated) => sort.IsDescending
+                    ? source.OrderByDescending(p => p.DateCreated)
+                    : source.OrderBy(p => p.DateCreated),
                 
                 nameof(BaseModel.Id) => sort.IsDescending
                     ? source.OrderByDescending(p => p.Id)

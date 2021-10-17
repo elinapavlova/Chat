@@ -47,7 +47,7 @@ namespace Services
             }
             
             var newRoom = _mapper.Map<RoomDto, Room>(roomDto);
-            newRoom.Date = DateTime.Now;
+            newRoom.DateCreated = DateTime.Now;
             
             result = _mapper.Map<ResultContainer<RoomDto>>(await _repository.Create(newRoom));
             return result;

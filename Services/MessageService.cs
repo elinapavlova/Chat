@@ -44,7 +44,7 @@ namespace Services
             }
             
             var newMessage = _mapper.Map<MessageResponseDto, Message>(messageDto);
-            newMessage.Date = DateTime.Now;
+            newMessage.DateCreated = DateTime.Now;
             
             result = _mapper.Map<ResultContainer<MessageResponseDto>>(await _repository.Create(newMessage));
             return result;

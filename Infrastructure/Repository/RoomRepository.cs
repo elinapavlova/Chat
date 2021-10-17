@@ -42,7 +42,7 @@ namespace Infrastructure.Repository
         {
             var rooms = await _context.Rooms
                 .Where(r => r.Title.Contains(title))
-                .OrderByDescending(r => r.Date)
+                .OrderByDescending(r => r.DateCreated)
                 .ToListAsync();
             return rooms;
         }

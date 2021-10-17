@@ -43,7 +43,7 @@ namespace Services
             
             var user = _mapper.Map<UserCredentialsDto, User>(userDto);
             user.Password = _passwordHasher.HashPassword(user.Password);
-            user.Date = DateTime.Now;
+            user.DateCreated = DateTime.Now;
             
             result = _mapper.Map<ResultContainer<UserDto>>(await _repository.Create(user));
 
