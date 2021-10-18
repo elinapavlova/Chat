@@ -7,7 +7,7 @@ using Infrastructure.Options;
 using Infrastructure.Profiles;
 using Infrastructure.Repository;
 using Infrastructure.SwaggerConfiguration;
-using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -18,6 +18,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using Services;
 using Services.Contracts;
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -56,14 +57,7 @@ namespace ChatAPI
             services.AddScoped<IRoomService, RoomService>();
             services.AddScoped<IMessageService, MessageService>();
             services.AddScoped<IAuthenticationService, AuthenticationService>();
-            
-            /*
-            services.AddDbContext<AppDbContext>(options =>
-            {
-                options.UseInMemoryDatabase("chatdb");
-            });
-            */
-            
+
             var connection = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connection,  
                 x => x.MigrationsAssembly("Database")));
@@ -89,13 +83,20 @@ namespace ChatAPI
                 options.GroupNameFormat = "'v'VVV";
                 options.SubstituteApiVersionInUrl = true;
             });
-            
-            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddCookie(options => 
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(x =>
                 {
-                    options.LoginPath = new Microsoft.AspNetCore.Http.PathString("/api/login");
-                    options.LogoutPath = new Microsoft.AspNetCore.Http.PathString("/api/logout");
-                    options.Cookie.HttpOnly = true;
+                    x.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        //ValidateIssuer = true,
+                        ValidIssuer = tokenOptions.Issuer,
+                        ValidateAudience = true,
+                        ValidAudience = tokenOptions.Audience,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = signingConfigurations.SecurityKey
+                    };
                 });
 
             services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
@@ -121,9 +122,9 @@ namespace ChatAPI
             app.UseHttpsRedirection();
 
             app.UseRouting();
-
-            app.UseAuthorization();
+            
             app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
         }

@@ -5,7 +5,7 @@ namespace Infrastructure.Configurations
 {
     public class SigningConfiguration
     {
-        private SecurityKey SecurityKey { get; }
+        public SecurityKey SecurityKey { get; }
         public SigningCredentials SigningCredentials { get; }
 
         public SigningConfiguration(string key)

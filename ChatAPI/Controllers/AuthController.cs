@@ -1,8 +1,6 @@
 ﻿using System.Threading.Tasks;
 using ChatAPI.Controllers.Base;
 using Infrastructure.Result;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models.Dtos.Token;
@@ -19,7 +17,7 @@ namespace ChatAPI.Controllers
     {
         private readonly IAuthenticationService _authenticationService;
         private readonly IUserService _userService;
-        
+
         public AuthController(IAuthenticationService authenticationService, IUserService userService)
         {
             _authenticationService = authenticationService;
@@ -32,10 +30,11 @@ namespace ChatAPI.Controllers
         /// <param name="userCredentials"></param>
         /// <returns></returns>
         [HttpPost]
+        [AllowAnonymous]
         public async Task<ActionResult<ResultContainer<AccessTokenDto>>> LoginAsync(UserCredentialsDto userCredentials)
         {
             return await ReturnResult<ResultContainer<AccessTokenDto>, AccessTokenDto>
-                (AuthenticateAsync(userCredentials));
+                (_authenticationService.Login(userCredentials));
         }
         
         /// <summary>
@@ -44,6 +43,7 @@ namespace ChatAPI.Controllers
         /// <param name="userCredentials"></param>
         /// <returns></returns>
         [HttpPost]
+        [AllowAnonymous]
         public async Task<ActionResult<ResultContainer<UserDto>>> RegisterAsync(UserCredentialsDto userCredentials)
         {
             return await ReturnResult<ResultContainer<UserDto>, UserDto>
@@ -56,41 +56,11 @@ namespace ChatAPI.Controllers
         /// <param name="refreshToken"></param>
         /// <returns></returns>
         [HttpPost]
-        [Authorize(AuthenticationSchemes = "Cookies")]
+        [Authorize]
         public async Task<ActionResult<ResultContainer<AccessTokenDto>>> RefreshTokenAsync(RefreshTokenDto refreshToken)
         {
             return await ReturnResult<ResultContainer<AccessTokenDto>,AccessTokenDto>
             (_authenticationService.RefreshTokenAsync(refreshToken.RefreshToken, refreshToken.EmailUser));
-        }
-
-        /// <summary>
-        /// Logout
-        /// </summary>
-        /// <returns></returns>
-        [HttpPost]
-        [Authorize(AuthenticationSchemes = "Cookies")]
-        public async Task<ActionResult> Logout()
-        {
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return Ok();
-        }
-
-        /// <summary>
-        /// Authenticate user's login data 
-        /// </summary>
-        /// <param name="data"></param>
-        /// <returns></returns>
-        private async Task<ResultContainer<AccessTokenDto>> AuthenticateAsync(UserCredentialsDto data)
-        {
-            var result = await _authenticationService.Login(data);
-
-            if (result.ErrorType.HasValue)
-                return result;
-            
-            var principal = await _authenticationService.CreatePrincipals(data, result.Data.AccessToken);
-            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
-
-            return result;
         }
     }
 }

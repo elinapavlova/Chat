@@ -13,7 +13,7 @@ namespace ChatAPI.Controllers
     [ApiVersion("1.0")]
     [Route("/api/v{version:apiVersion}/[controller]")]
     [ApiController]
-    [Authorize(AuthenticationSchemes = "Cookies")]
+    [Authorize]
     public class RoomsController : BaseController
     {
         private readonly IRoomService _roomService;

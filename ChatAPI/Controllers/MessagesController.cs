@@ -10,8 +10,8 @@ namespace ChatAPI.Controllers
 {
     [ApiVersion("1.0")]
     [Route("/api/v{version:apiVersion}/[controller]")]
+    [Authorize]
     [ApiController]
-    [Authorize(AuthenticationSchemes = "Cookies")]
     public class MessagesController : BaseController
     {
         private readonly IMessageService _messageService;

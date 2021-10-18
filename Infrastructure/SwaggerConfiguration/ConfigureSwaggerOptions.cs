@@ -24,6 +24,38 @@ namespace Infrastructure.SwaggerConfiguration
                         Version = description.ApiVersion.ToString(),
                     });
             }
+
+            ConfigureBearerAuthorization(options);
+        }
+
+        private static void ConfigureBearerAuthorization(SwaggerGenOptions options)
+        {
+            var securityScheme = new OpenApiSecurityScheme
+            {
+                In = ParameterLocation.Header,
+                Name = "Authorization",
+                BearerFormat = "Bearer {authToken}",
+                Description = "JSON Web Token to access resources. Example: Bearer {token}",
+                Type = SecuritySchemeType.ApiKey
+            };
+            
+            options.AddSecurityDefinition(
+                "Bearer", securityScheme
+            );
+            options.AddSecurityRequirement(
+                new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme, Id = "Bearer"
+                            }
+                        },
+                        System.Array.Empty<string>()
+                    }
+                });
         }
     }
 }

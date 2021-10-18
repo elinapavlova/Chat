@@ -71,27 +71,12 @@ namespace Services
             return result;
         }
 
-        public async Task<ClaimsPrincipal> CreatePrincipals(UserCredentialsDto user, string token)
-        {
-            var claims = new List<Claim>
-            {
-                new (ClaimsIdentity.DefaultNameClaimType, user.Email),
-                new ("Token", token)
-            };
-
-            var id = new ClaimsIdentity
-                (claims, "ApplicationCookie", 
-                    ClaimsIdentity.DefaultNameClaimType, ClaimsIdentity.DefaultRoleClaimType);
-            
-            return new ClaimsPrincipal(id);
-        }
-
         public async Task<ResultContainer<AccessTokenDto>> Login(UserCredentialsDto data)
         {
             var user = await _userService.FindByEmailAsync(data.Email);
             var result = new ResultContainer<AccessTokenDto>();
 
-            if (user.ErrorType.HasValue)
+            if (user.Data == null)
             {
                 result.ErrorType = ErrorType.BadRequest;
                 return result;
