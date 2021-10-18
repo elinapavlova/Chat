@@ -20,6 +20,8 @@ namespace Database
                 room.HasOne(r => r.User)
                     .WithMany(u => u.Rooms)
                     .HasForeignKey(r => r.IdUser);
+
+                room.Property(r => r.Title).IsRequired().HasMaxLength(200);
             });
             
             builder.Entity<Message>(message =>
@@ -31,6 +33,14 @@ namespace Database
                 message.HasOne(m => m.User)
                     .WithMany(u => u.Messages)
                     .HasForeignKey(m => m.IdUser);
+                
+                message.Property(m => m.Text).IsRequired().HasMaxLength(500);
+            });
+
+            builder.Entity<User>(user =>
+            {
+                user.Property(u => u.Email).IsRequired().HasMaxLength(50);
+                user.Property(u => u.Password).IsRequired().HasMaxLength(200);
             });
         }
     }
