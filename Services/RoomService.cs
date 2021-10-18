@@ -18,8 +18,8 @@ namespace Services
         private readonly IRoomRepository _repository;
         private readonly IMapper _mapper;
         private readonly IUserService _userService;
-        private readonly int _defaultPageNumber;
-        
+        private readonly PagingOptions _pagingOptions;
+
         public RoomService
         (
             IRoomRepository repository, 
@@ -31,7 +31,7 @@ namespace Services
             _repository = repository;
             _mapper = mapper;
             _userService = userService;
-            _defaultPageNumber = pagingOptions.DefaultPageNumber;
+            _pagingOptions = pagingOptions;
         }
 
         public async Task<ResultContainer<RoomDto>> CreateRoomAsync(RoomDto roomDto)
@@ -68,19 +68,21 @@ namespace Services
             return result;
         }
 
-        public async Task<ResultContainer<ICollection<RoomDto>>> GetPageAsync(int page, int pageSize)
+        public async Task<ResultContainer<ICollection<RoomDto>>> GetPageAsync(int page, int pageSize, string columnName, bool isDescending)
         {
             if (page < 1)
-                page = _defaultPageNumber;
-
-            var filter = new BaseFilter
+                page = _pagingOptions.DefaultPageNumber;
+            
+            if (pageSize < 1)
+                pageSize = _pagingOptions.DefaultPageSize;
+            
+            var filter = new BaseFilterDto
             {
-                Paging = new FilterPagingDto { PageNumber = page, PageSize = pageSize}
+                Paging = new FilterPagingDto {PageNumber = page, PageSize = pageSize},
+                Sort = new FilterSortDto {ColumnName = columnName, IsDescending = isDescending}
             };
             
-            var result = _mapper.Map<ResultContainer<ICollection<RoomDto>>>
-                (await _repository.GetFiltered(filter));
-            
+            var result = _mapper.Map<ResultContainer<ICollection<RoomDto>>>(await _repository.GetFiltered(filter));
             return result;
         }
 
@@ -104,7 +106,7 @@ namespace Services
             var result = new ResultContainer<RoomResponseDto>();
             
             if (page < 1)
-                page = _defaultPageNumber;
+                page = _pagingOptions.DefaultPageNumber;
 
             var room = await _repository.GetByIdWithMessagesAsync(id, page, pageSize);
             if (room == null)

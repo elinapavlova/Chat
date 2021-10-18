@@ -48,12 +48,8 @@ namespace Infrastructure.Repository.Base
 
         private IQueryable<TModel> ApplySort(IQueryable<TModel> source, FilterSortDto sort)
         {
-            sort ??= new FilterSortDto
-            {
-                ColumnName = nameof(BaseModel.DateCreated),
-                IsDescending = true
-            };
-
+            sort.ColumnName ??= nameof(BaseModel.DateCreated);
+            
             return sort.ColumnName switch
             {
                 nameof(BaseModel.DateCreated) => sort.IsDescending

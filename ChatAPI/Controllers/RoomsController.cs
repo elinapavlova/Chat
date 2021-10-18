@@ -54,10 +54,13 @@ namespace ChatAPI.Controllers
         /// Paging rooms list
         /// </summary>
         /// <param name="page"></param>
+        /// <param name="pageSize"></param>
+        /// <param name="columnName"></param>
+        /// <param name="isDescending"></param>
         /// <returns></returns>
-        [HttpGet("{page:int}")]
-        public async Task<ActionResult<ICollection<RoomDto>>> GetAllAsync(int page)
+        [HttpGet]
+        public async Task<ActionResult<ICollection<RoomDto>>> GetAllAsync(int page, int pageSize, string columnName, bool isDescending)
             => await ReturnResult<ResultContainer<ICollection<RoomDto>>, ICollection<RoomDto>>
-                (_roomService.GetPageAsync(page, _pageSize));
+                (_roomService.GetPageAsync(page, pageSize, columnName, isDescending));
     }
 }
