@@ -20,7 +20,7 @@ namespace Infrastructure.SwaggerConfiguration
                     description.GroupName,
                     new OpenApiInfo
                     {
-                        Title = $"Sample API {description.ApiVersion}",
+                        Title = $"ChatAPI {description.ApiVersion}",
                         Version = description.ApiVersion.ToString(),
                     });
             }
