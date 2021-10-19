@@ -36,7 +36,7 @@ namespace Services
 
         public async Task<ResultContainer<RoomDto>> CreateRoomAsync(RoomDto roomDto)
         {
-            var user = await _userService.FindByIdAsync(roomDto.IdUser);
+            var user = await _userService.FindByIdAsync(roomDto.UserId);
             var room = await _repository.GetById(roomDto.Id);
             var result = new ResultContainer<RoomDto>();
             
