@@ -37,25 +37,6 @@ namespace Services
             _roomService = roomService;
             _imageRepository = imageRepository;
         }
-        
-        public async Task<ResultContainer<MessageResponseDto>> CreateMessageAsync(MessageResponseDto messageDto)
-        {
-            var user = await _userService.FindByIdAsync(messageDto.UserId);
-            var room = await _roomService.FindByIdAsync(messageDto.RoomId);
-            var result = new ResultContainer<MessageResponseDto>();
-            
-            if (user.Data == null || room.Data == null || messageDto.Text == null)
-            {
-                result.ErrorType = ErrorType.BadRequest;
-                return result;
-            }
-            
-            var newMessage = _mapper.Map<MessageResponseDto, Message>(messageDto);
-            newMessage.DateCreated = DateTime.Now;
-            
-            result = _mapper.Map<ResultContainer<MessageResponseDto>>(await _messageRepository.Create(newMessage));
-            return result;
-        }
 
         public async Task<ResultContainer<MessageResponseDto>> FindByIdAsync(int id)
         {
@@ -72,48 +53,69 @@ namespace Services
             return result;
         }
         
-        public async Task<ResultContainer<MessageResponseDto>> UploadMessageAsync(MessageRequestDto message)
+        public async Task<ResultContainer<MessageResponseDto>> CreateMessageAsync(MessageRequestDto message)
         {
-            var resultMessage = new ResultContainer<MessageResponseDto>();
+            var resultMessage = await ValidateMessage(message);
+            if (resultMessage.ErrorType.HasValue)
+                return resultMessage;
+            
             var mes = _mapper.Map<Message>(message);
             mes.DateCreated = DateTime.Now;
             
-            if (message.Files == null && !string.IsNullOrEmpty(message.Text))
+            switch (message.Files)
             {
-                resultMessage = _mapper.Map<ResultContainer<MessageResponseDto>>(await _messageRepository.Create(mes));
+                // Если нет файлов и есть текст сообщения - создать сообщение
+                case null when !string.IsNullOrEmpty(message.Text):
+                    resultMessage = _mapper.Map<ResultContainer<MessageResponseDto>>(await _messageRepository.Create(mes));
+                    return resultMessage;
+                // Если нет файлов и нет текста сообщения - вернуть ошибку
+                case null when string.IsNullOrEmpty(message.Text):
+                    resultMessage.ErrorType = ErrorType.BadRequest;
+                    return resultMessage;
             }
-            else if (message.Files != null)
-            {
-                using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+            
+            using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
                 
-                resultMessage = _mapper.Map<ResultContainer<MessageResponseDto>>(await _messageRepository.Create(mes));
-                await UploadImage(message.Files, resultMessage.Data.Id);
+            resultMessage = _mapper.Map<ResultContainer<MessageResponseDto>>(await _messageRepository.Create(mes));
+            var resultImage = await UploadImage(message.Files, resultMessage.Data.Id);
 
-                scope.Complete();
-            }
-            else
-            {
+            if (resultImage.ErrorType.HasValue)
                 resultMessage.ErrorType = ErrorType.BadRequest;
-                return resultMessage;
-            }
+            else
+                scope.Complete();
             
             return resultMessage;
         }
 
-        private async Task UploadImage(IFormFileCollection imageFile, int messageId)
+        private async Task<ResultContainer<MessageResponseDto>> ValidateMessage(MessageRequestDto messageDto)
+        {
+            var user = await _userService.FindByIdAsync(messageDto.UserId);
+            var room = await _roomService.FindByIdAsync(messageDto.RoomId);
+            var result = new ResultContainer<MessageResponseDto>();
+
+            // Если данные валидны
+            if (user.Data != null && room.Data != null) 
+                return result;
+            
+            result.ErrorType = ErrorType.BadRequest;
+            return result;
+
+        }
+        
+        private async Task<ResultContainer<ImageResponseDto>> UploadImage(IFormFileCollection files, int messageId)
         {
             var image = new Image();
-            var result = new ResultContainer<ImageResponseDto>(); 
-            byte[] imageBytes;
+            var result = new ResultContainer<ImageResponseDto>();
 
-            foreach (var file in imageFile)
+            foreach (var file in files)
             {
                 if (file.ContentType != "image/jpeg")
                 {
                     result.ErrorType = ErrorType.BadRequest;
-                    return;
+                    return result;
                 }
-                            
+
+                byte[] imageBytes;
                 await using (var stream = file.OpenReadStream())
                 await using (var memoryStream = new MemoryStream())
                 {
@@ -127,6 +129,8 @@ namespace Services
                             
                 result = _mapper.Map<ResultContainer<ImageResponseDto>>(await _imageRepository.Create(image));
             }
+
+            return result;
         }
     }
 }
