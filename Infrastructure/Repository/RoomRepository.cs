@@ -28,7 +28,7 @@ namespace Infrastructure.Repository
                 return null;
             
             var messages = await _context.Messages
-                .Where(m => m.IdRoom == room.Id)
+                .Where(m => m.RoomId == room.Id)
                 .OrderByDescending(r => r.Id)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)

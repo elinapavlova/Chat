@@ -47,6 +47,7 @@ namespace ChatAPI
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IRoomRepository, RoomRepository>();
             services.AddScoped<IMessageRepository, MessageRepository>();
+            services.AddScoped<IImageRepository, ImageRepository>();
             
             services.AddSingleton<ITokenService, TokenService>();
             services.AddSingleton<IPasswordHasher, PasswordHasher>();

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Models.Base;
+using Models.Dtos.Message;
 
 namespace Models.Dtos.Room
 {

@@ -3,15 +3,17 @@ using System;
 using Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Database.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20211019123400_AddImagesTable")]
+    partial class AddImagesTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -53,21 +55,22 @@ namespace Database.Migrations
                     b.Property<DateTime>("DateCreated")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<int>("RoomId")
+                    b.Property<int>("IdRoom")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("IdUser")
                         .HasColumnType("integer");
 
                     b.Property<string>("Text")
+                        .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("RoomId");
+                    b.HasIndex("IdRoom");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("IdUser");
 
                     b.ToTable("Messages");
                 });
@@ -82,17 +85,17 @@ namespace Database.Migrations
                     b.Property<DateTime>("DateCreated")
                         .HasColumnType("timestamp without time zone");
 
+                    b.Property<int>("IdUser")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
 
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("IdUser");
 
                     b.ToTable("Rooms");
                 });
@@ -137,13 +140,13 @@ namespace Database.Migrations
                 {
                     b.HasOne("Models.Room", "Room")
                         .WithMany("Messages")
-                        .HasForeignKey("RoomId")
+                        .HasForeignKey("IdRoom")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Models.User", "User")
                         .WithMany("Messages")
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("IdUser")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -156,7 +159,7 @@ namespace Database.Migrations
                 {
                     b.HasOne("Models.User", "User")
                         .WithMany("Rooms")
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("IdUser")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

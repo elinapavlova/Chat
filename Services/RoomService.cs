@@ -45,7 +45,7 @@ namespace Services
                 result.ErrorType = ErrorType.BadRequest;
                 return result;
             }
-            
+
             var newRoom = _mapper.Map<RoomDto, Room>(roomDto);
             newRoom.DateCreated = DateTime.Now;
             

@@ -3,6 +3,7 @@ using AutoMapper;
 using Infrastructure.Result;
 using Models;
 using Models.Dtos;
+using Models.Dtos.Message;
 using Models.Dtos.Room;
 using Models.Dtos.Token;
 using Models.Dtos.User;
@@ -18,6 +19,8 @@ namespace Infrastructure.Profiles
             CreateMap<UserCredentialsDto, User>();
             CreateMap<RoomDto, Room>();
             CreateMap<MessageResponseDto, Message>();
+            CreateMap<ImageResponseDto, Image>();
+            CreateMap<MessageRequestDto, Message>();
             
             // Model to Dto
             CreateMap<User, UserDto>();
@@ -25,6 +28,7 @@ namespace Infrastructure.Profiles
             CreateMap<Room, RoomDto>();
             CreateMap<Room, RoomResponseDto>();
             CreateMap<Message, MessageResponseDto>();
+            CreateMap<Image, ImageResponseDto>();
             CreateMap<AccessToken, AccessTokenDto>()
                 .ForMember(a => a.AccessToken, 
                     opt => 
@@ -70,6 +74,10 @@ namespace Infrastructure.Profiles
                     opt.MapFrom(r => r));
             
             CreateMap<ICollection<Room>, ResultContainer<ICollection<RoomDto>>>()
+                .ForMember("Data", opt =>
+                    opt.MapFrom(r => r));
+
+            CreateMap<Image, ResultContainer<ImageResponseDto>>()
                 .ForMember("Data", opt =>
                     opt.MapFrom(r => r));
         }
