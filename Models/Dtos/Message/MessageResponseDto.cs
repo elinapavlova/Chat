@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Models.Base;
+using Models.Dtos.Image;
 
 namespace Models.Dtos.Message
 {

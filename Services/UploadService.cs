@@ -5,8 +5,8 @@ using AutoMapper;
 using Infrastructure.Contracts;
 using Infrastructure.Result;
 using Microsoft.AspNetCore.Http;
-using Models;
 using Models.Dtos;
+using Models.Dtos.Image;
 using Models.Error;
 using Services.Contracts;
 
@@ -53,7 +53,7 @@ namespace Services
 
         private async Task<ResultContainer<ImageResponseDto>> UploadImageAsync(IFormFile file, int messageId)
         {
-            var image = new Image();
+            var image = new ImageDto();
             byte[] imageBytes;
             await using (var stream = file.OpenReadStream())
             await using (var memoryStream = new MemoryStream())

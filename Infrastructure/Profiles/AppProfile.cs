@@ -3,6 +3,7 @@ using AutoMapper;
 using Infrastructure.Result;
 using Models;
 using Models.Dtos;
+using Models.Dtos.Image;
 using Models.Dtos.Message;
 using Models.Dtos.Room;
 using Models.Dtos.Token;

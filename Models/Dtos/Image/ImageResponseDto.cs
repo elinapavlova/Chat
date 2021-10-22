@@ -1,6 +1,6 @@
 ﻿using Models.Base;
 
-namespace Models.Dtos
+namespace Models.Dtos.Image
 {
     public class ImageResponseDto : BaseModel
     {

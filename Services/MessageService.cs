@@ -7,6 +7,7 @@ using Infrastructure.Contracts;
 using Infrastructure.Result;
 using Models;
 using Models.Dtos;
+using Models.Dtos.Image;
 using Models.Dtos.Message;
 using Models.Error;
 using Services.Contracts;
