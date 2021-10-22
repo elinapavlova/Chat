@@ -80,6 +80,8 @@ namespace Infrastructure.Profiles
             CreateMap<Image, ResultContainer<ImageResponseDto>>()
                 .ForMember("Data", opt =>
                     opt.MapFrom(r => r));
+
+            CreateMap<UploadResponseDto, ResultContainer<UploadResponseDto>>();
         }
     }
 }
