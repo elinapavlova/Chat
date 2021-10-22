@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Transactions;
 using AutoMapper;
 using Infrastructure.Contracts;
 using Infrastructure.Result;
 using Models;
+using Models.Dtos;
 using Models.Dtos.Message;
 using Models.Error;
 using Services.Contracts;
@@ -18,6 +20,7 @@ namespace Services
         private readonly IUserService _userService;
         private readonly IRoomService _roomService;
         private readonly IUploadService _uploadService;
+        private readonly IImageRepository _imageRepository;
 
         public MessageService
         (
@@ -25,7 +28,8 @@ namespace Services
             IMapper mapper, 
             IUserService userService,
             IRoomService roomService,
-            IUploadService uploadService
+            IUploadService uploadService,
+            IImageRepository imageRepository
         )
         {
             _messageRepository = repository;
@@ -33,6 +37,7 @@ namespace Services
             _userService = userService;
             _roomService = roomService;
             _uploadService = uploadService;
+            _imageRepository = imageRepository;
         }
 
         public async Task<ResultContainer<MessageResponseDto>> FindByIdAsync(int id)
@@ -45,8 +50,14 @@ namespace Services
                 result.ErrorType = ErrorType.NotFound;
                 return result;
             }
-            
+
             result = _mapper.Map<ResultContainer<MessageResponseDto>>(message);
+
+            if (result.ErrorType.HasValue)
+                return result;
+            
+            result.Data.Images = _mapper.Map<ICollection<ImageResponseDto>>
+                (await _imageRepository.GetByMessageId(result.Data.Id));
             return result;
         }
         
