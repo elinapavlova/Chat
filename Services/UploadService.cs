@@ -7,7 +7,6 @@ using Infrastructure.Result;
 using Microsoft.AspNetCore.Http;
 using Models;
 using Models.Dtos;
-using Models.Dtos.Message;
 using Models.Error;
 using Services.Contracts;
 
@@ -28,9 +27,9 @@ namespace Services
             _imageRepository = imageRepository;
         }
 
-        public async Task<ResultContainer<MessageResponseDto>> UploadAsync(IFormFileCollection files, int messageId)
+        public async Task<ResultContainer<UploadResponseDto>> UploadAsync(IFormFileCollection files, int messageId)
         {
-            var result = new ResultContainer<MessageResponseDto>();
+            var result = new ResultContainer<UploadResponseDto>();
             foreach (var file in files)
             {
                 switch (file.ContentType)
