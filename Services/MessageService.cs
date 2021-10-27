@@ -62,38 +62,34 @@ namespace Services
             return result;
         }
         
-        public async Task<ResultContainer<MessageResponseDto>> CreateMessageAsync(MessageRequestDto message)
+        public async Task<ResultContainer<MessageResponseDto>> CreateMessageAsync(MessageRequestDto messageDto)
         {
-            var resultMessage = await ValidateMessage(message);
-            if (resultMessage.ErrorType.HasValue)
+            var resultMessage = await ValidateMessage(messageDto);
+            var resultUpload = new ResultContainer<UploadResponseDto>();
+            
+            // Если сообщение невалидное или не содержит файлов и текста - вернуть ошибку
+            if (resultMessage.ErrorType.HasValue || messageDto.Files == null && messageDto.Text == null)
                 return resultMessage;
             
-            var mes = _mapper.Map<Message>(message);
-            mes.DateCreated = DateTime.Now;
-            
-            switch (message.Files)
-            {
-                // Если нет файлов и есть текст сообщения - создать сообщение
-                case null when !string.IsNullOrEmpty(message.Text):
-                    resultMessage = _mapper.Map<ResultContainer<MessageResponseDto>>(await _messageRepository.Create(mes));
-                    return resultMessage;
-                // Если нет файлов и нет текста сообщения - вернуть ошибку
-                case null when string.IsNullOrEmpty(message.Text):
-                    resultMessage.ErrorType = ErrorType.BadRequest;
-                    return resultMessage;
-            }
-            
+            var message = _mapper.Map<Message>(messageDto);
+            message.DateCreated = DateTime.Now;
+
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
-                
-            resultMessage = _mapper.Map<ResultContainer<MessageResponseDto>>(await _messageRepository.Create(mes));
-            var resultUpload = 
-                await _uploadService.UploadAsync(message.Files, resultMessage.Data.Id);
+            
+            resultMessage = _mapper.Map<ResultContainer<MessageResponseDto>>(await _messageRepository.Create(message));
+            
+            // Если есть файлы - загрузить их на сервер
+            if (messageDto.Files != null) 
+                resultUpload = await _uploadService.UploadAsync(messageDto.Files, resultMessage.Data.Id);
             
             if (resultUpload.ErrorType.HasValue)
                 resultMessage.ErrorType = ErrorType.BadRequest;
             else
+            {
+                resultMessage.Data.Images = resultUpload.Data.Images;
                 scope.Complete();
-
+            }
+            
             return resultMessage;
         }
 

@@ -2,7 +2,6 @@
 using Infrastructure.Result;
 using Microsoft.AspNetCore.Http;
 using Models.Dtos;
-using Models.Dtos.Message;
 
 namespace Services.Contracts
 {

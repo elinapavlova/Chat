@@ -82,7 +82,9 @@ namespace Infrastructure.Profiles
                 .ForMember("Data", opt =>
                     opt.MapFrom(r => r));
 
-            CreateMap<UploadResponseDto, ResultContainer<UploadResponseDto>>();
+            CreateMap<UploadResponseDto, ResultContainer<UploadResponseDto>>()
+                .ForMember("Data", opt =>
+                    opt.MapFrom(r => r));
         }
     }
 }
