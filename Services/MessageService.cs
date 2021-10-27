@@ -20,7 +20,7 @@ namespace Services
         private readonly IMapper _mapper;
         private readonly IUserService _userService;
         private readonly IRoomService _roomService;
-        private readonly IUploadService _uploadService;
+        private readonly IFileStorageService _uploadService;
         private readonly IImageRepository _imageRepository;
 
         public MessageService
@@ -29,7 +29,7 @@ namespace Services
             IMapper mapper, 
             IUserService userService,
             IRoomService roomService,
-            IUploadService uploadService,
+            IFileStorageService uploadService,
             IImageRepository imageRepository
         )
         {

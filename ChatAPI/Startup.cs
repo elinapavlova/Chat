@@ -58,7 +58,7 @@ namespace ChatAPI
             services.AddScoped<IRoomService, RoomService>();
             services.AddScoped<IMessageService, MessageService>();
             services.AddScoped<IAuthenticationService, AuthenticationService>();
-            services.AddScoped<IUploadService, UploadService>();
+            services.AddScoped<IFileStorageService, FileStorageService>();
 
             var connection = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connection,  

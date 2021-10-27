@@ -5,7 +5,7 @@ using Models.Dtos;
 
 namespace Services.Contracts
 {
-    public interface IUploadService
+    public interface IFileStorageService
     {
         Task<ResultContainer<UploadResponseDto>> UploadAsync(IFormFileCollection files, int messageId);
     }

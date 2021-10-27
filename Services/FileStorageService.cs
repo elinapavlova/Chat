@@ -13,12 +13,12 @@ using Services.Contracts;
 
 namespace Services
 {
-    public class UploadService  : IUploadService
+    public class FileStorageService  : IFileStorageService
     {
         private readonly IImageRepository _imageRepository;
         private readonly IMapper _mapper;
 
-        public UploadService
+        public FileStorageService
         (
             IMapper mapper,
             IImageRepository imageRepository
