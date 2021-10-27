@@ -50,7 +50,7 @@ namespace Database
                     .WithMany(m => m.Images)
                     .HasForeignKey(i => i.MessageId);
 
-                image.Property(i => i.Img).IsRequired();
+                image.Property(i => i.Path).IsRequired();
             });
         }
     }

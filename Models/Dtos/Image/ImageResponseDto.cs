@@ -4,6 +4,6 @@ namespace Models.Dtos.Image
 {
     public class ImageResponseDto : BaseModel
     {
-        public byte[] Img { get; set; }
+        public string Path { get; set; }
     }
 }

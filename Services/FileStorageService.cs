@@ -4,6 +4,7 @@ using System.IO;
 using System.Threading.Tasks;
 using AutoMapper;
 using Infrastructure.Contracts;
+using Infrastructure.Options;
 using Infrastructure.Result;
 using Microsoft.AspNetCore.Http;
 using Models.Dtos;
@@ -17,15 +18,18 @@ namespace Services
     {
         private readonly IImageRepository _imageRepository;
         private readonly IMapper _mapper;
+        private readonly string _basePath;
 
         public FileStorageService
         (
             IMapper mapper,
-            IImageRepository imageRepository
+            IImageRepository imageRepository,
+            AppOptions appOptions
         )
         {
             _mapper = mapper;
             _imageRepository = imageRepository;
+            _basePath = appOptions.BasePath;
         }
 
         public async Task<ResultContainer<UploadResponseDto>> UploadAsync(IFormFileCollection files, int messageId)
@@ -58,15 +62,14 @@ namespace Services
         private async Task<ResultContainer<ImageResponseDto>> UploadImageAsync(IFormFile file, int messageId)
         {
             var image = new ImageDto();
-            byte[] imageBytes;
-            await using (var stream = file.OpenReadStream())
-            await using (var memoryStream = new MemoryStream())
+            var absoletePath = _basePath + file.FileName + ".jpeg";
+            if (file.Length > 0)
             {
-                await stream.CopyToAsync(memoryStream);
-                imageBytes = memoryStream.ToArray();
+                await using var stream = File.Create(absoletePath);
+                await file.CopyToAsync(stream);
             }
                 
-            image.Img = imageBytes;
+            image.Path = absoletePath;
             image.DateCreated = DateTime.Now;
             image.MessageId = messageId;
                             
