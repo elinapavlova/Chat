@@ -44,10 +44,19 @@ namespace Services
 
             foreach (var file in files)
             {
+                // Если такой файл уже существует или файл пустой - вернуть ошибку
+                if (File.Exists(_basePath + file.FileName) || file.Length <= 0)
+                {
+                    result.ErrorType = ErrorType.BadRequest;
+                    return result;
+                }
+                
                 switch (file.ContentType)
                 {
                     case "image/jpeg" : 
                         var image = await UploadImageAsync(file, messageId);
+                        if (image.ErrorType.HasValue)
+                            goto default;
                         result.Data.Images.Add(image.Data);
                         break;
                     default:
@@ -62,13 +71,11 @@ namespace Services
         private async Task<ResultContainer<ImageResponseDto>> UploadImageAsync(IFormFile file, int messageId)
         {
             var image = new ImageDto();
-            var absoletePath = _basePath + file.FileName + ".jpeg";
-            if (file.Length > 0)
-            {
-                await using var stream = File.Create(absoletePath);
-                await file.CopyToAsync(stream);
-            }
-                
+            var absoletePath = _basePath + file.FileName;
+
+            await using var stream = File.Create(absoletePath);
+            await file.CopyToAsync(stream);
+            
             image.Path = absoletePath;
             image.DateCreated = DateTime.Now;
             image.MessageId = messageId;
