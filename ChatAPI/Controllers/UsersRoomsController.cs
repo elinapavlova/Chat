@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using ChatAPI.Controllers.Base;
 using Infrastructure.Result;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models.Dtos.Room;
 using Models.Dtos.User;
@@ -12,7 +13,7 @@ namespace ChatAPI.Controllers
 {
     [ApiVersion("1.0")]
     [ApiController]
-    //[Authorize]
+    [Authorize]
     [Route("/api/v{version:apiVersion}/[controller]/[action]")]
     public class UsersRoomsController : BaseController
     {
