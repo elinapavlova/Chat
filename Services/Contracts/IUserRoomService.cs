@@ -13,5 +13,6 @@ namespace Services.Contracts
         Task<ResultContainer<ICollection<RoomDto>>> GetRoomsUserIn(int userId);
         Task<ResultContainer<ICollection<UserDto>>> GetUsersInRoom(int roomId);
         Task<ResultContainer<UserRoomResponseDto>> ComeOutOfRoom(int userId, int roomId);
+        Task<ResultContainer<UserRoomDto>> CheckUserInRoom(int userId, int roomId);
     }
 }

@@ -9,6 +9,7 @@ using Models.Dtos.Message;
 using Models.Dtos.Room;
 using Models.Dtos.Token;
 using Models.Dtos.User;
+using Models.Dtos.UserChat;
 using Models.Dtos.UserRoom;
 using Models.Token;
 
@@ -27,6 +28,8 @@ namespace Infrastructure.Profiles
             CreateMap<ChatDto, Chat>();
             CreateMap<UserRoomDto, UserRoom>();
             CreateMap<UserRoomResponseDto, UserRoom>();
+            CreateMap<UserChatDto, UserChat>();
+            CreateMap<UserChatResponseDto, UserChat>();
             
             // Model to Dto
             CreateMap<User, UserDto>();
@@ -39,6 +42,8 @@ namespace Infrastructure.Profiles
             CreateMap<Chat, ChatResponseDto>();
             CreateMap<UserRoom, UserRoomDto>();
             CreateMap<UserRoom, UserRoomResponseDto>();
+            CreateMap<UserChat, UserChatDto>();
+            CreateMap<UserChat, UserChatResponseDto>();
             CreateMap<AccessToken, AccessTokenDto>()
                 .ForMember(a => a.AccessToken, 
                     opt => 
@@ -60,6 +65,18 @@ namespace Infrastructure.Profiles
                     opt.MapFrom(u => u));
             
             CreateMap<ICollection<UserRoom>, ResultContainer<ICollection<UserRoomDto>>>()
+                .ForMember("Data", opt =>
+                    opt.MapFrom(r => r));
+            
+            CreateMap<UserChat, ResultContainer<UserChatDto>>()
+                .ForMember("Data", opt => 
+                    opt.MapFrom(u => u));
+            
+            CreateMap<UserChat, ResultContainer<UserChatResponseDto>>()
+                .ForMember("Data", opt => 
+                    opt.MapFrom(u => u));
+            
+            CreateMap<ICollection<UserChat>, ResultContainer<ICollection<UserChatDto>>>()
                 .ForMember("Data", opt =>
                     opt.MapFrom(r => r));
             
