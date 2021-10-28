@@ -28,11 +28,17 @@ namespace Infrastructure.Repository
             
             var messages = await _context.Messages
                 .Where(m => m.ChatId == chat.Id)
-                .OrderByDescending(r => r.Id)
+                .OrderByDescending(m => m.Id)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
 
+            if (messages.Count == 0)
+                return chat;
+
+            foreach (var message in messages)
+                message.Images = await GetImagesForMessage(message.Id);
+            
             chat.Messages = messages;
             return chat;
         }
@@ -44,6 +50,15 @@ namespace Infrastructure.Repository
                 .OrderByDescending(r => r.DateCreated)
                 .ToListAsync();
             return chats;
+        }
+
+        private async Task<List<Image>> GetImagesForMessage(int messageId)
+        {
+            var images = await _context.Images
+                .Where(i => i.MessageId == messageId)
+                .OrderByDescending(i => i.Id)
+                .ToListAsync();
+            return images;
         }
     }
 }

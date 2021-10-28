@@ -9,6 +9,6 @@ namespace Models.Dtos.Room
         public string Title { get; set; }
         public int UserId { get; set; }
 
-        public ICollection<ChatResponseDto> Chats { get; set; }
+        public ICollection<ChatDto> Chats { get; set; }
     }
 }

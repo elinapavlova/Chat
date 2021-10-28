@@ -19,7 +19,7 @@ namespace Services
         private readonly IMessageRepository _messageRepository;
         private readonly IMapper _mapper;
         private readonly IUserService _userService;
-        private readonly IRoomService _roomService;
+        private readonly IChatService _chatService;
         private readonly IFileStorageService _uploadService;
         private readonly IImageRepository _imageRepository;
 
@@ -28,7 +28,7 @@ namespace Services
             IMessageRepository repository, 
             IMapper mapper, 
             IUserService userService,
-            IRoomService roomService,
+            IChatService chatService,
             IFileStorageService uploadService,
             IImageRepository imageRepository
         )
@@ -36,7 +36,7 @@ namespace Services
             _messageRepository = repository;
             _mapper = mapper;
             _userService = userService;
-            _roomService = roomService;
+            _chatService = chatService;
             _uploadService = uploadService;
             _imageRepository = imageRepository;
         }
@@ -81,7 +81,7 @@ namespace Services
             // Если есть файлы - загрузить их на сервер
             if (messageDto.Files != null) 
                 resultUpload = await _uploadService.UploadAsync(messageDto.Files, resultMessage.Data.Id);
-            
+
             if (resultUpload.ErrorType.HasValue)
                 resultMessage.ErrorType = ErrorType.BadRequest;
             else
@@ -96,11 +96,11 @@ namespace Services
         private async Task<ResultContainer<MessageResponseDto>> ValidateMessage(MessageRequestDto messageDto)
         {
             var user = await _userService.FindByIdAsync(messageDto.UserId);
-            var room = await _roomService.FindByIdAsync(messageDto.RoomId);
+            var chat = await _chatService.FindByIdAsync(messageDto.ChatId);
             var result = new ResultContainer<MessageResponseDto>();
 
             // Если данные валидны
-            if (user.Data != null && room.Data != null) 
+            if (user.Data != null && chat.Data != null) 
                 return result;
             
             result.ErrorType = ErrorType.BadRequest;
