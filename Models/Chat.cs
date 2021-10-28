@@ -12,5 +12,6 @@ namespace Models
         public Room Room { get; set; }
         public User User { get; set; }
         public ICollection<Message> Messages { get; set; }
+        public List<UserChat> UsersChats { get; set; }
     }
 }

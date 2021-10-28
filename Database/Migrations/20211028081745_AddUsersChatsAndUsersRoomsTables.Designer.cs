@@ -3,15 +3,17 @@ using System;
 using Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Database.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20211028081745_AddUsersChatsAndUsersRoomsTables")]
+    partial class AddUsersChatsAndUsersRoomsTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -162,9 +164,6 @@ namespace Database.Migrations
                     b.Property<int>("ChatId")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime>("DateComeOut")
-                        .HasColumnType("timestamp without time zone");
-
                     b.Property<DateTime>("DateCreated")
                         .HasColumnType("timestamp without time zone");
 
@@ -186,9 +185,6 @@ namespace Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
-
-                    b.Property<DateTime>("DateComeOut")
-                        .HasColumnType("timestamp without time zone");
 
                     b.Property<DateTime>("DateCreated")
                         .HasColumnType("timestamp without time zone");

@@ -10,6 +10,8 @@ namespace Database
         public DbSet<Chat> Chats { get; set; }
         public DbSet<Message> Messages { get; set; }
         public DbSet<Image> Images { get; set; }
+        public DbSet<UserRoom> UsersRooms { get; set; }
+        public DbSet<UserChat> UsersChats { get; set; }
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) {}
 
@@ -20,7 +22,7 @@ namespace Database
             builder.Entity<Room>(room =>
             {
                 room.HasOne(r => r.User)
-                    .WithMany(u => u.Rooms)
+                    .WithMany(u => u.RoomsCreated)
                     .HasForeignKey(r => r.UserId);
 
                 room.Property(r => r.Title).IsRequired().HasMaxLength(200);
@@ -57,13 +59,35 @@ namespace Database
             builder.Entity<Chat>(chat =>
             {
                 chat.HasOne(c => c.User)
-                    .WithMany(u => u.Chats)
+                    .WithMany(u => u.ChatsCreated)
                     .HasForeignKey(c => c.UserId);
                 chat.HasOne(c => c.Room)
                     .WithMany(r => r.Chats)
                     .HasForeignKey(c => c.RoomId);
 
                 chat.Property(r => r.Title).IsRequired().HasMaxLength(200);
+            });
+
+            builder.Entity<UserRoom>(userRoom =>
+            {
+                userRoom.HasOne(ur => ur.User)
+                    .WithMany(u => u.RoomsIn)
+                    .HasForeignKey(ur => ur.UserId);
+                
+                userRoom.HasOne(ur => ur.Room)
+                    .WithMany(r => r.UsersRooms)
+                    .HasForeignKey(ur => ur.RoomId);
+            });
+            
+            builder.Entity<UserChat>(userChat =>
+            {
+                userChat.HasOne(ur => ur.User)
+                    .WithMany(u => u.ChatsIn)
+                    .HasForeignKey(ur => ur.UserId);
+                
+                userChat.HasOne(ur => ur.Chat)
+                    .WithMany(r => r.UsersChats)
+                    .HasForeignKey(ur => ur.ChatId);
             });
         }
     }

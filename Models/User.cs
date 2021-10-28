@@ -8,8 +8,12 @@ namespace Models
         public string Email { get; set; }
         public string Password { get; set; }
 
-        public List<Room> Rooms { get; set; }
-        public List<Chat> Chats { get; set; }
+        public List<Room> RoomsCreated { get; set; }
+        public List<Chat> ChatsCreated { get; set; }
+        
+        public List<UserRoom> RoomsIn { get; set; }
+        public List<UserChat> ChatsIn { get; set; }
+        
         public List<Message> Messages { get; set; }
     }
 }

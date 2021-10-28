@@ -11,7 +11,7 @@ using Services.Contracts;
 namespace ChatAPI.Controllers
 {
     [ApiVersion("1.0")]
-    [Route("/api/v{version:apiVersion}/[controller]")]
+    [Route("/api/v{version:apiVersion}/[controller]/[action]")]
     [ApiController]
     [Authorize]
     public class RoomsController : BaseController
@@ -19,12 +19,21 @@ namespace ChatAPI.Controllers
         private readonly IRoomService _roomService;
         private readonly int _pageSize;
 
-        public RoomsController(IRoomService roomService, PagingOptions pagingOptions)
+        public RoomsController
+        (
+            IRoomService roomService, 
+            PagingOptions pagingOptions
+        )
         {
             _roomService = roomService;
             _pageSize = pagingOptions.DefaultPageSize;
         }
         
+        /// <summary>
+        /// Create a new room
+        /// </summary>
+        /// <param name="room"></param>
+        /// <returns></returns>
         [HttpPost]
         public async Task<ActionResult<RoomDto>> CreateRoomAsync(RoomDto room)
             => await ReturnResult<ResultContainer<RoomDto>, RoomDto>(_roomService.CreateRoomAsync(room));
@@ -59,7 +68,8 @@ namespace ChatAPI.Controllers
         /// <param name="isDescending"></param>
         /// <returns></returns>
         [HttpGet]
-        public async Task<ActionResult<ICollection<RoomDto>>> GetAllAsync(int page, int pageSize, string columnName, bool isDescending)
+        public async Task<ActionResult<ICollection<RoomDto>>> GetAllAsync
+            (int page, int pageSize, string columnName, bool isDescending)
             => await ReturnResult<ResultContainer<ICollection<RoomDto>>, ICollection<RoomDto>>
                 (_roomService.GetPageAsync(page, pageSize, columnName, isDescending));
     }

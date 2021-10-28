@@ -51,6 +51,8 @@ namespace ChatAPI
             services.AddScoped<IMessageRepository, MessageRepository>();
             services.AddScoped<IImageRepository, ImageRepository>();
             services.AddScoped<IChatRepository, ChatRepository>();
+            services.AddScoped<IUserRoomRepository, UserRoomRepository>();
+            services.AddScoped<IUserChatRepository, UserChatRepository>();
             
             services.AddSingleton<ITokenService, TokenService>();
             services.AddSingleton<IPasswordHasher, PasswordHasher>();
@@ -64,6 +66,8 @@ namespace ChatAPI
             services.AddScoped<IAuthenticationService, AuthenticationService>();
             services.AddScoped<IFileStorageService, FileStorageService>();
             services.AddScoped<IChatService, ChatService>();
+            services.AddScoped<IUserChatService, UserChatService>();
+            services.AddScoped<IUserRoomService, UserRoomService>();
 
             var connection = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connection,  

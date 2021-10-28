@@ -10,5 +10,7 @@ namespace Models
         
         public User User { get; set; }
         public List<Chat> Chats { get; set; }
+        
+        public List<UserRoom> UsersRooms { get; set; }
     }
 }

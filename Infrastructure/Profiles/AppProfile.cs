@@ -9,6 +9,7 @@ using Models.Dtos.Message;
 using Models.Dtos.Room;
 using Models.Dtos.Token;
 using Models.Dtos.User;
+using Models.Dtos.UserRoom;
 using Models.Token;
 
 namespace Infrastructure.Profiles
@@ -24,6 +25,8 @@ namespace Infrastructure.Profiles
             CreateMap<MessageRequestDto, Message>();
             CreateMap<ImageResponseDto, Image>();
             CreateMap<ChatDto, Chat>();
+            CreateMap<UserRoomDto, UserRoom>();
+            CreateMap<UserRoomResponseDto, UserRoom>();
             
             // Model to Dto
             CreateMap<User, UserDto>();
@@ -34,6 +37,8 @@ namespace Infrastructure.Profiles
             CreateMap<Image, ImageResponseDto>();
             CreateMap<Chat, ChatDto>();
             CreateMap<Chat, ChatResponseDto>();
+            CreateMap<UserRoom, UserRoomDto>();
+            CreateMap<UserRoom, UserRoomResponseDto>();
             CreateMap<AccessToken, AccessTokenDto>()
                 .ForMember(a => a.AccessToken, 
                     opt => 
@@ -46,6 +51,18 @@ namespace Infrastructure.Profiles
                         opt.MapFrom(a => a.Expiration));
             
             // Model to ResultContainer
+            CreateMap<UserRoom, ResultContainer<UserRoomDto>>()
+                .ForMember("Data", opt => 
+                    opt.MapFrom(u => u));
+            
+            CreateMap<UserRoom, ResultContainer<UserRoomResponseDto>>()
+                .ForMember("Data", opt => 
+                    opt.MapFrom(u => u));
+            
+            CreateMap<ICollection<UserRoom>, ResultContainer<ICollection<UserRoomDto>>>()
+                .ForMember("Data", opt =>
+                    opt.MapFrom(r => r));
+            
             CreateMap<User, ResultContainer<UserDto>>()
                 .ForMember("Data", opt => 
                     opt.MapFrom(u => u));

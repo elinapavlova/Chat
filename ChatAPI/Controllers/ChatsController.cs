@@ -11,7 +11,7 @@ using Services.Contracts;
 namespace ChatAPI.Controllers
 {
     [ApiVersion("1.0")]
-    [Route("/api/v{version:apiVersion}/[controller]")]
+    [Route("/api/v{version:apiVersion}/[controller]/[action]")]
     [ApiController]
     [Authorize]
     public class ChatsController : BaseController
@@ -59,7 +59,8 @@ namespace ChatAPI.Controllers
         /// <param name="isDescending"></param>
         /// <returns></returns>
         [HttpGet]
-        public async Task<ActionResult<ICollection<ChatDto>>> GetAllAsync(int page, int pageSize, string columnName, bool isDescending)
+        public async Task<ActionResult<ICollection<ChatDto>>> GetAllAsync
+            (int page, int pageSize, string columnName, bool isDescending)
             => await ReturnResult<ResultContainer<ICollection<ChatDto>>, ICollection<ChatDto>>
                 (_chatService.GetPageAsync(page, pageSize, columnName, isDescending));
     }

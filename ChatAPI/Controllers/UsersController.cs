@@ -1,4 +1,5 @@
 ﻿using ChatAPI.Controllers.Base;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Services.Contracts;
 
@@ -6,7 +7,8 @@ namespace ChatAPI.Controllers
 {
     [ApiVersion("1.0")]
     [ApiController]
-    [Route("/api/v{version:apiVersion}/[controller]")]
+    [Authorize]
+    [Route("/api/v{version:apiVersion}/[controller]/[action]")]
     public class UsersController : BaseController
     {
         private readonly IUserService _userService;
@@ -18,12 +20,5 @@ namespace ChatAPI.Controllers
         {
             _userService = userService;
         }
-        
-        //[HttpPost]
-        //public async Task<ActionResult<ResultContainer<UserDto>>> CreateUserAsync(UserCredentialsDto user)
-        //{
-        //    return await ReturnResult<ResultContainer<UserDto>, UserDto>
-        //        (_userService.CreateUserAsync(user));
-        //}
     }
 }
