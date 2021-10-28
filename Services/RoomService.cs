@@ -40,7 +40,7 @@ namespace Services
             var room = await _repository.GetById(roomDto.Id);
             var result = new ResultContainer<RoomDto>();
             
-            if (user == null || room != null)
+            if (user.ErrorType.HasValue || room != null)
             {
                 result.ErrorType = ErrorType.BadRequest;
                 return result;
@@ -101,14 +101,14 @@ namespace Services
             return result;
         }
 
-        public async Task<ResultContainer<RoomResponseDto>> GetByIdWithMessagesAsync(int id, int page, int pageSize)
+        public async Task<ResultContainer<RoomResponseDto>> GetByIdWithChatsAsync(int id, int page, int pageSize)
         {
             var result = new ResultContainer<RoomResponseDto>();
             
             if (page < 1)
                 page = _pagingOptions.DefaultPageNumber;
 
-            var room = await _repository.GetByIdWithMessagesAsync(id, page, pageSize);
+            var room = await _repository.GetByIdWithChatsAsync(id, page, pageSize);
             if (room == null)
             {
                 result.ErrorType = ErrorType.NotFound;

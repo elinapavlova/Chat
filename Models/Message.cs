@@ -7,10 +7,11 @@ namespace Models
     {
         public string Text { get; set; }
         public int UserId { get; set; }
-        public int RoomId { get; set; }
+        public int ChatId { get; set; }
         
         public User User { get; set; }
-        public Room Room { get; set; }
+        
+        public Chat Chat { get; set; }
         public List<Image> Images { get; set; }
     }
 }

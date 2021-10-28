@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using Models.Base;
-using Models.Dtos.Message;
+using Models.Dtos.Chat;
 
 namespace Models.Dtos.Room
 {
@@ -9,6 +9,6 @@ namespace Models.Dtos.Room
         public string Title { get; set; }
         public int UserId { get; set; }
 
-        public ICollection<MessageResponseDto> Messages { get; set; }
+        public ICollection<ChatResponseDto> Chats { get; set; }
     }
 }

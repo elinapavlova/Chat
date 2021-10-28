@@ -10,40 +10,40 @@ using Models;
 
 namespace Infrastructure.Repository
 {
-    public class RoomRepository : BaseRepository<Room, BaseFilter>, IRoomRepository
+    public class ChatRepository : BaseRepository<Chat, BaseFilter>, IChatRepository
     {
         private readonly AppDbContext _context;
         
-        public RoomRepository(AppDbContext context) : base(context)
+        public ChatRepository(AppDbContext context) : base(context)
         {
             _context = context;
         }
-
-        public async Task<Room> GetByIdWithChatsAsync(int id, int page, int pageSize)
+        
+        public async Task<Chat> GetByIdWithMessagesAsync(int id, int page, int pageSize)
         {
-            var room = await _context.Rooms.SingleOrDefaultAsync(u => u.Id == id);
+            var chat = await _context.Chats.SingleOrDefaultAsync(u => u.Id == id);
 
-            if (room == null)
+            if (chat == null)
                 return null;
             
-            var chats = await _context.Chats
-                .Where(m => m.RoomId == room.Id)
+            var messages = await _context.Messages
+                .Where(m => m.ChatId == chat.Id)
                 .OrderByDescending(r => r.Id)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToListAsync();
 
-            room.Chats = chats;
-            return room;
+            chat.Messages = messages;
+            return chat;
         }
 
-        public async Task<ICollection<Room>> FindByNameAsync(string title)
+        public async Task<ICollection<Chat>> FindByNameAsync(string title)
         {
-            var rooms = await _context.Rooms
+            var chats = await _context.Chats
                 .Where(r => r.Title.Contains(title))
                 .OrderByDescending(r => r.DateCreated)
                 .ToListAsync();
-            return rooms;
+            return chats;
         }
     }
 }

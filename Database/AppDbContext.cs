@@ -7,6 +7,7 @@ namespace Database
     {
         public DbSet<User> Users { get; set; }
         public DbSet<Room> Rooms { get; set; }
+        public DbSet<Chat> Chats { get; set; }
         public DbSet<Message> Messages { get; set; }
         public DbSet<Image> Images { get; set; }
 
@@ -27,9 +28,9 @@ namespace Database
             
             builder.Entity<Message>(message =>
             {
-                message.HasOne(m => m.Room)
+                message.HasOne(m => m.Chat)
                     .WithMany(r => r.Messages)
-                    .HasForeignKey(m => m.RoomId);
+                    .HasForeignKey(m => m.ChatId);
 
                 message.HasOne(m => m.User)
                     .WithMany(u => u.Messages)
@@ -51,6 +52,18 @@ namespace Database
                     .HasForeignKey(i => i.MessageId);
 
                 image.Property(i => i.Path).IsRequired();
+            });
+            
+            builder.Entity<Chat>(chat =>
+            {
+                chat.HasOne(c => c.User)
+                    .WithMany(u => u.Chats)
+                    .HasForeignKey(c => c.UserId);
+                chat.HasOne(c => c.Room)
+                    .WithMany(r => r.Chats)
+                    .HasForeignKey(c => c.RoomId);
+
+                chat.Property(r => r.Title).IsRequired().HasMaxLength(200);
             });
         }
     }

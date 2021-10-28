@@ -46,9 +46,9 @@ namespace ChatAPI.Controllers
         /// <param name="page"></param>
         /// <returns></returns>
         [HttpGet("{id:int}/{page:int}")]
-        public async Task<ActionResult<RoomResponseDto>> GetByIdWithMessagesAsync(int id, int page)
+        public async Task<ActionResult<RoomResponseDto>> GetByIdWithChatsAsync(int id, int page)
             => await ReturnResult<ResultContainer<RoomResponseDto>, RoomResponseDto>
-                (_roomService.GetByIdWithMessagesAsync(id, page, _pageSize));
+                (_roomService.GetByIdWithChatsAsync(id, page, _pageSize));
 
         /// <summary>
         /// Paging rooms list

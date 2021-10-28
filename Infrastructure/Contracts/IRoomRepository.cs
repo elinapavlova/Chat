@@ -7,7 +7,7 @@ namespace Infrastructure.Contracts
 {
     public interface IRoomRepository : IBaseRepository<Room, BaseFilter>
     {
-        Task<Room> GetByIdWithMessagesAsync(int id, int page, int pageSize);
+        Task<Room> GetByIdWithChatsAsync(int id, int page, int pageSize);
         Task<ICollection<Room>> FindByNameAsync(string name);
     }
 }

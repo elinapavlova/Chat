@@ -3,12 +3,14 @@ using Models.Base;
 
 namespace Models
 {
-    public class Room : BaseModel
+    public class Chat : BaseModel
     {
         public string Title { get; set; }
+        public int RoomId { get; set; }
         public int UserId { get; set; }
         
+        public Room Room { get; set; }
         public User User { get; set; }
-        public List<Chat> Chats { get; set; }
+        public ICollection<Message> Messages { get; set; }
     }
 }

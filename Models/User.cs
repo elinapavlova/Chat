@@ -9,6 +9,7 @@ namespace Models
         public string Password { get; set; }
 
         public List<Room> Rooms { get; set; }
+        public List<Chat> Chats { get; set; }
         public List<Message> Messages { get; set; }
     }
 }
