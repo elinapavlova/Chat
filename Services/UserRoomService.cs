@@ -111,7 +111,7 @@ namespace Services
         /// <param name="userId"></param>
         /// <param name="roomId"></param>
         /// <returns></returns>
-        private async Task<ResultContainer<UserRoomDto>> CheckUserInRoom(int userId, int roomId)
+        public async Task<ResultContainer<UserRoomDto>> CheckUserInRoom(int userId, int roomId)
         {
             var result = new ResultContainer<UserRoomDto>();
             var userRoom = await _userRoomRepository.CheckUserInRoom(userId, roomId);
