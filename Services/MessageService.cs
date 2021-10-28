@@ -18,27 +18,24 @@ namespace Services
     {
         private readonly IMessageRepository _messageRepository;
         private readonly IMapper _mapper;
-        private readonly IUserService _userService;
-        private readonly IChatService _chatService;
         private readonly IFileStorageService _uploadService;
         private readonly IImageRepository _imageRepository;
+        private readonly IUserChatService _userChatService;
 
         public MessageService
         (
             IMessageRepository repository, 
-            IMapper mapper, 
-            IUserService userService,
-            IChatService chatService,
+            IMapper mapper,
             IFileStorageService uploadService,
-            IImageRepository imageRepository
+            IImageRepository imageRepository,
+            IUserChatService userChatService
         )
         {
             _messageRepository = repository;
             _mapper = mapper;
-            _userService = userService;
-            _chatService = chatService;
             _uploadService = uploadService;
             _imageRepository = imageRepository;
+            _userChatService = userChatService;
         }
 
         public async Task<ResultContainer<MessageResponseDto>> FindByIdAsync(int id)
@@ -82,25 +79,27 @@ namespace Services
             if (messageDto.Files != null) 
                 resultUpload = await _uploadService.UploadAsync(messageDto.Files, resultMessage.Data.Id);
 
+            // Если файлы загружены
+            if (resultUpload.Data != null)
+                resultMessage.Data.Images = resultUpload.Data.Images;
+            
+            // Если при загрузке произошла ошибка
             if (resultUpload.ErrorType.HasValue)
                 resultMessage.ErrorType = ErrorType.BadRequest;
             else
-            {
-                resultMessage.Data.Images = resultUpload.Data.Images;
                 scope.Complete();
-            }
-            
+
             return resultMessage;
         }
 
         private async Task<ResultContainer<MessageResponseDto>> ValidateMessage(MessageRequestDto messageDto)
         {
-            var user = await _userService.FindByIdAsync(messageDto.UserId);
-            var chat = await _chatService.FindByIdAsync(messageDto.ChatId);
             var result = new ResultContainer<MessageResponseDto>();
+            var userInChat = 
+                await _userChatService.CheckUserInChat(messageDto.UserId, messageDto.ChatId);
 
             // Если данные валидны
-            if (user.Data != null && chat.Data != null) 
+            if (!userInChat.ErrorType.HasValue) 
                 return result;
             
             result.ErrorType = ErrorType.BadRequest;

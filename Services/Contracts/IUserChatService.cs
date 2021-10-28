@@ -13,5 +13,6 @@ namespace Services.Contracts
         Task<ResultContainer<ICollection<ChatDto>>> GetChatsUserIn(int userId);
         Task<ResultContainer<ICollection<UserDto>>> GetUsersInChat(int chatId);
         Task<ResultContainer<UserChatResponseDto>> ComeOutOfChat(int userId, int chatId);
+        Task<ResultContainer<UserChatDto>> CheckUserInChat(int userId, int chatId);
     }
 }

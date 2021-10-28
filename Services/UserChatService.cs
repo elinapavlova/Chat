@@ -47,13 +47,11 @@ namespace Services
         /// <returns></returns>
         public async Task<ResultContainer<UserChatDto>> CreateUserChatAsync(UserChatDto userChatDto)
         {
-            var user = await _userService.FindByIdAsync(userChatDto.UserId);
             var chat = await _chatService.FindByIdAsync(userChatDto.ChatId);
-            
             var result = new ResultContainer<UserChatDto>();
             
-            // Если пользователя/чата/комнаты не существует
-            if (user.ErrorType.HasValue || chat.ErrorType.HasValue)
+            // Если чата не существует
+            if (chat.ErrorType.HasValue)
             {
                 result.ErrorType = ErrorType.BadRequest;
                 return result;
@@ -65,7 +63,7 @@ namespace Services
                 await _userRoomService.CheckUserInRoom(userChatDto.UserId, room.Data.Id);
             
             // Если пользователь уже состоит в чате или не состоит в комнате
-            if (userInChat.Data != null || userInRoom.ErrorType.HasValue || userInRoom.Data == null)
+            if (userInChat.Data != null || userInRoom.ErrorType.HasValue)
             {
                 result.ErrorType = ErrorType.BadRequest;
                 return result;
@@ -88,6 +86,7 @@ namespace Services
         {
             var result = new ResultContainer<ICollection<ChatDto>>();
             var user = await _userService.FindByIdAsync(userId);
+            
             if (user.ErrorType.HasValue)
             {
                 result.ErrorType = ErrorType.NotFound;
@@ -128,7 +127,7 @@ namespace Services
         /// <param name="userId"></param>
         /// <param name="chatId"></param>
         /// <returns></returns>
-        private async Task<ResultContainer<UserChatDto>> CheckUserInChat(int userId, int chatId)
+        public async Task<ResultContainer<UserChatDto>> CheckUserInChat(int userId, int chatId)
         {
             var result = new ResultContainer<UserChatDto>();
             var userChat = await _userChatRepository.CheckUserInChat(userId, chatId);

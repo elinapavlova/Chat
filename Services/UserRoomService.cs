@@ -41,14 +41,11 @@ namespace Services
         /// <returns></returns>
         public async Task<ResultContainer<UserRoomDto>> CreateUserRoomAsync(UserRoomDto userRoomDto)
         {
-            var user = await _userService.FindByIdAsync(userRoomDto.UserId);
-            var room = await _roomService.FindByIdAsync(userRoomDto.RoomId);
             var result = new ResultContainer<UserRoomDto>();
-
             var userInRoom = await CheckUserInRoom(userRoomDto.UserId, userRoomDto.RoomId);
             
             // Если пользователя/комнаты не существует или пользователь уже состоит в комнате
-            if (user.ErrorType.HasValue || room.ErrorType.HasValue || userInRoom.Data != null)
+            if (userInRoom.Data != null)
             {
                 result.ErrorType = ErrorType.BadRequest;
                 return result;
@@ -71,6 +68,7 @@ namespace Services
         {
             var result = new ResultContainer<ICollection<RoomDto>>();
             var user = await _userService.FindByIdAsync(userId);
+            
             if (user.ErrorType.HasValue)
             {
                 result.ErrorType = ErrorType.NotFound;
