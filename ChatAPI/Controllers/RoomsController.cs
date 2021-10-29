@@ -4,6 +4,7 @@ using ChatAPI.Controllers.Base;
 using Infrastructure.Options;
 using Infrastructure.Result;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Models.Dtos.Room;
 using Services.Contracts;
@@ -30,11 +31,16 @@ namespace ChatAPI.Controllers
         }
         
         /// <summary>
-        /// Create a new room
+        /// Create a room
         /// </summary>
         /// <param name="room"></param>
-        /// <returns></returns>
+        /// <response code="200">Return the room</response>
+        /// <response code="400">If the room already exists</response>
+        /// <response code="401">If the User wasn't authorized</response>
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<RoomDto>> CreateRoomAsync(RoomDto room)
             => await ReturnResult<ResultContainer<RoomDto>, RoomDto>(_roomService.CreateRoomAsync(room));
 
@@ -42,33 +48,46 @@ namespace ChatAPI.Controllers
         /// Get rooms list by name
         /// </summary>
         /// <param name="name"></param>
-        /// <returns></returns>
+        /// <response code="200">Return the room</response>
+        /// <response code="400">If the rooms don't exist</response>
+        /// <response code="401">If the User wasn't authorized</response>
         [HttpGet("{name}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<ICollection<RoomDto>>> FindByNameAsync(string name)
             => await ReturnResult<ResultContainer<ICollection<RoomDto>>, ICollection<RoomDto>>
                 (_roomService.FindByNameAsync(name));
 
         /// <summary>
-        /// Paging messages list in the room
+        /// Get chats list in the room by page
         /// </summary>
         /// <param name="id"></param>
         /// <param name="page"></param>
-        /// <returns></returns>
+        /// <response code="200">Return the room with chats</response>
+        /// <response code="404">If the room wasn't found</response>
+        /// <response code="401">If the User wasn't authorized</response>
         [HttpGet("{id:int}/{page:int}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<RoomResponseDto>> GetByIdWithChatsAsync(int id, int page)
             => await ReturnResult<ResultContainer<RoomResponseDto>, RoomResponseDto>
                 (_roomService.GetByIdWithChatsAsync(id, page, _pageSize));
 
         /// <summary>
-        /// Paging rooms list
+        /// Get filtered rooms list by page
         /// </summary>
         /// <param name="page"></param>
         /// <param name="pageSize"></param>
         /// <param name="columnName"></param>
         /// <param name="isDescending"></param>
-        /// <returns></returns>
+        /// <response code="200">Return the rooms list</response>
+        /// <response code="401">If the User wasn't authorized</response>
         [HttpGet]
-        public async Task<ActionResult<ICollection<RoomDto>>> GetAllAsync
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<ActionResult<ICollection<RoomDto>>> GetPageAsync
             (int page, int pageSize, string columnName, bool isDescending)
             => await ReturnResult<ResultContainer<ICollection<RoomDto>>, ICollection<RoomDto>>
                 (_roomService.GetPageAsync(page, pageSize, columnName, isDescending));

@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using ChatAPI.Controllers.Base;
 using Infrastructure.Result;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Models.Dtos.Room;
 using Models.Dtos.User;
@@ -33,9 +34,15 @@ namespace ChatAPI.Controllers
         /// <param name="userId"></param>
         /// <param name="page"></param>
         /// <param name="pageSize"></param>
-        /// <returns></returns>
+        /// <response code="200">Return rooms which user in</response>
+        /// <response code="404">If the user doesn't exist</response>
+        /// <response code="401">If the User wasn't authorized</response>
         [HttpGet("{userId:int}/{page:int}/{pageSize:int}")]
-        public async Task<ActionResult<ResultContainer<ICollection<RoomDto>>>> GetRoomsUserIn(int userId, int page, int pageSize)
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<ResultContainer<ICollection<RoomDto>>>> GetRoomsUserIn
+            (int userId, int page, int pageSize)
             => await ReturnResult<ResultContainer<ICollection<RoomDto>>, ICollection<RoomDto>>
                 (_userRoomService.GetRoomsUserIn(userId, page, pageSize));
         
@@ -43,8 +50,13 @@ namespace ChatAPI.Controllers
         /// Come in room
         /// </summary>
         /// <param name="userRoomDto"></param>
-        /// <returns></returns>
+        /// <response code="200">Return user id and room id</response>
+        /// <response code="400">If the room or user doesn't exist or user is already in room</response>
+        /// <response code="401">If the User wasn't authorized</response>
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<UserRoomDto>> ComeIn(UserRoomDto userRoomDto)
             => await ReturnResult<ResultContainer<UserRoomDto>, UserRoomDto>
                 (_userRoomService.CreateUserRoomAsync(userRoomDto));
@@ -54,8 +66,13 @@ namespace ChatAPI.Controllers
         /// </summary>
         /// <param name="userId"></param>
         /// <param name="roomId"></param>
-        /// <returns></returns>
+        /// <response code="200">Return user id, room id and exit date</response>
+        /// <response code="400">If the user is not in room</response>
+        /// <response code="401">If the User wasn't authorized</response>
         [HttpPost("{userId:int}/{roomId:int}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<UserRoomResponseDto>> ComeOut(int userId, int roomId)
             => await ReturnResult<ResultContainer<UserRoomResponseDto>, UserRoomResponseDto>
                 (_userRoomService.ComeOutOfRoom(userId, roomId));
@@ -64,8 +81,13 @@ namespace ChatAPI.Controllers
         /// Get users list in room
         /// </summary>
         /// <param name="roomId"></param>
-        /// <returns></returns>
+        /// <response code="200">Return users list</response>
+        /// <response code="404">If the room doesn't exist</response>
+        /// <response code="401">If the User wasn't authorized</response>
         [HttpGet("{roomId:int}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<ICollection<UserDto>>> GetUsersInRoom(int roomId)
             => await ReturnResult<ResultContainer<ICollection<UserDto>>, ICollection<UserDto>>
                 (_userRoomService.GetUsersInRoom(roomId));
