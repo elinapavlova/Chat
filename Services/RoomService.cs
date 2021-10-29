@@ -53,22 +53,26 @@ namespace Services
             return result;
         }
 
-        public async Task<ResultContainer<ICollection<RoomDto>>> FindByNameAsync(string title)
+        public async Task<ResultContainer<ICollection<RoomDto>>> FindByNameAsync(string title, int page, int pageSize)
         {
             var result = new ResultContainer<ICollection<RoomDto>>();
-            var room = await _repository.FindByNameAsync(title);
-
-            if (room == null)
+            
+            if (page < 1)
+                page = _pagingOptions.DefaultPageNumber;
+            
+            var rooms = await _repository.FindByNameAsync(title, page, pageSize);
+            if (rooms.Count == 0)
             {
                 result.ErrorType = ErrorType.NotFound;
                 return result;
             }
             
-            result = _mapper.Map<ResultContainer<ICollection<RoomDto>>>(room);
+            result = _mapper.Map<ResultContainer<ICollection<RoomDto>>>(rooms);
             return result;
         }
 
-        public async Task<ResultContainer<ICollection<RoomDto>>> GetPageAsync(int page, int pageSize, string columnName, bool isDescending)
+        public async Task<ResultContainer<ICollection<RoomDto>>> GetPageAsync
+            (int page, int pageSize, string columnName, bool isDescending)
         {
             if (page < 1)
                 page = _pagingOptions.DefaultPageNumber;
@@ -83,6 +87,10 @@ namespace Services
             };
             
             var result = _mapper.Map<ResultContainer<ICollection<RoomDto>>>(await _repository.GetFiltered(filter));
+            if (result.Data.Count != 0) 
+                return result;
+            
+            result.ErrorType = ErrorType.NotFound;
             return result;
         }
 
@@ -109,7 +117,9 @@ namespace Services
                 page = _pagingOptions.DefaultPageNumber;
 
             var room = await _repository.GetByIdWithChatsAsync(id, page, pageSize);
-            if (room == null)
+            
+            // Если комната не найдена или на данной странице нет чатов
+            if (room == null || room.Chats.Count == 0 && page > 1)
             {
                 result.ErrorType = ErrorType.NotFound;
                 return result;

@@ -98,15 +98,8 @@ namespace Services
             if (page < 1)
                 page = _pagingOptions.DefaultPageNumber;
 
-            // Если чат не найден
-            if (chat == null)
-            {
-                result.ErrorType = ErrorType.BadRequest;
-                return result;
-            }
-
-            // Если на данной странице нет сообщений
-            if (chat.Messages == null && page > 1)
+            // Если чат не найден или на данной странице нет сообщений
+            if (chat == null || chat.Messages.Count == 0 && page > 1)
             {
                 result.ErrorType = ErrorType.NotFound;
                 return result;

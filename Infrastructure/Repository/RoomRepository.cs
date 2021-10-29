@@ -37,11 +37,13 @@ namespace Infrastructure.Repository
             return room;
         }
 
-        public async Task<ICollection<Room>> FindByNameAsync(string title)
+        public async Task<ICollection<Room>> FindByNameAsync(string title, int page, int pageSize)
         {
             var rooms = await _context.Rooms
                 .Where(r => r.Title.Contains(title))
                 .OrderByDescending(r => r.DateCreated)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
             return rooms;
         }

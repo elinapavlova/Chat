@@ -14,7 +14,7 @@ namespace ChatAPI.Controllers
     [ApiVersion("1.0")]
     [Route("/api/v{version:apiVersion}/[controller]/[action]")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
     public class RoomsController : BaseController
     {
         private readonly IRoomService _roomService;
@@ -48,16 +48,17 @@ namespace ChatAPI.Controllers
         /// Get rooms list by name
         /// </summary>
         /// <param name="name"></param>
+        /// <param name="page"></param>
         /// <response code="200">Return the room</response>
-        /// <response code="400">If the rooms don't exist</response>
+        /// <response code="404">If the rooms don't exist</response>
         /// <response code="401">If the User wasn't authorized</response>
-        [HttpGet("{name}")]
+        [HttpGet("{name}/{page:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult<ICollection<RoomDto>>> FindByNameAsync(string name)
+        public async Task<ActionResult<ICollection<RoomDto>>> FindByNameAsync(string name, int page)
             => await ReturnResult<ResultContainer<ICollection<RoomDto>>, ICollection<RoomDto>>
-                (_roomService.FindByNameAsync(name));
+                (_roomService.FindByNameAsync(name, page, _pageSize));
 
         /// <summary>
         /// Get chats list in the room by page
@@ -83,9 +84,11 @@ namespace ChatAPI.Controllers
         /// <param name="columnName"></param>
         /// <param name="isDescending"></param>
         /// <response code="200">Return the rooms list</response>
+        /// <response code="404">If the room doesn't exist or there are not chats at this page</response>
         /// <response code="401">If the User wasn't authorized</response>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<ICollection<RoomDto>>> GetPageAsync
             (int page, int pageSize, string columnName, bool isDescending)
