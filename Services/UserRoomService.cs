@@ -77,7 +77,7 @@ namespace Services
             
             if (user.ErrorType.HasValue)
             {
-                result.ErrorType = ErrorType.NotFound;
+                result.ErrorType = ErrorType.BadRequest;
                 return result;
             }
             
@@ -88,6 +88,11 @@ namespace Services
                 pageSize = _pagingOptions.DefaultPageSize;
             
             var rooms = await _userRoomRepository.GetRoomsByUserId(userId, page, pageSize);
+            if (rooms.Count == 0 && page > 1)
+            {
+                result.ErrorType = ErrorType.NotFound;
+                return result;
+            }
 
             result = _mapper.Map<ResultContainer<ICollection<RoomDto>>>(rooms);
             return result;

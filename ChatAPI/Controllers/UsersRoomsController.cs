@@ -35,12 +35,14 @@ namespace ChatAPI.Controllers
         /// <param name="page"></param>
         /// <param name="pageSize"></param>
         /// <response code="200">Return rooms which user in</response>
-        /// <response code="404">If the user doesn't exist</response>
+        /// <response code="404">If there are not rooms at this page</response>
         /// <response code="401">If the User wasn't authorized</response>
-        [HttpGet("{userId:int}/{page:int}/{pageSize:int}")]
+        /// <response code="400">If the user doesn't exist</response>
+        [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<ResultContainer<ICollection<RoomDto>>>> GetRoomsUserIn
             (int userId, int page, int pageSize)
             => await ReturnResult<ResultContainer<ICollection<RoomDto>>, ICollection<RoomDto>>

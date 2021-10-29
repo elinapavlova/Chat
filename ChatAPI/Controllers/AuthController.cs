@@ -58,7 +58,7 @@ namespace ChatAPI.Controllers
         }
 
         /// <summary>
-        /// Get new refresh token
+        /// Get new token
         /// </summary>
         /// <param name="refreshToken"></param>
         /// <response code="200">Return new access token, refresh token and expiration</response>

@@ -95,7 +95,7 @@ namespace Services
             
             if (user.ErrorType.HasValue)
             {
-                result.ErrorType = ErrorType.NotFound;
+                result.ErrorType = ErrorType.BadRequest;
                 return result;
             }
             
@@ -106,6 +106,11 @@ namespace Services
                 pageSize = _pagingOptions.DefaultPageSize;
 
             var chats = await _userChatRepository.GetChatsByUserId(userId, page, pageSize);
+            if (chats.Count == 0 && page > 1)
+            {
+                result.ErrorType = ErrorType.NotFound;
+                return result;
+            }
 
             result = _mapper.Map<ResultContainer<ICollection<ChatDto>>>(chats);
             return result;

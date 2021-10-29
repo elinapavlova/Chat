@@ -14,7 +14,7 @@ namespace ChatAPI.Controllers
     [ApiVersion("1.0")]
     [Route("/api/v{version:apiVersion}/[controller]/[action]")]
     [ApiController]
-    //[Authorize]
+    [Authorize]
     public class RoomsController : BaseController
     {
         private readonly IRoomService _roomService;
