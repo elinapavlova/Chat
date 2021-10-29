@@ -25,9 +25,14 @@ namespace ChatAPI.Controllers
             _pageSize = pagingOptions.DefaultPageSize;
         }
         
+        /// <summary>
+        /// Create a new chat
+        /// </summary>
+        /// <param name="chat"></param>
+        /// <returns></returns>
         [HttpPost]
-        public async Task<ActionResult<ChatDto>> CreateChatAsync(ChatDto room)
-            => await ReturnResult<ResultContainer<ChatDto>, ChatDto>(_chatService.CreateChatAsync(room));
+        public async Task<ActionResult<ChatDto>> CreateChatAsync(ChatDto chat)
+            => await ReturnResult<ResultContainer<ChatDto>, ChatDto>(_chatService.CreateChatAsync(chat));
 
         /// <summary>
         /// Get chats list by name
@@ -59,6 +64,7 @@ namespace ChatAPI.Controllers
         /// <param name="isDescending"></param>
         /// <returns></returns>
         [HttpGet]
+        // PageAsync
         public async Task<ActionResult<ICollection<ChatDto>>> GetAllAsync
             (int page, int pageSize, string columnName, bool isDescending)
             => await ReturnResult<ResultContainer<ICollection<ChatDto>>, ICollection<ChatDto>>

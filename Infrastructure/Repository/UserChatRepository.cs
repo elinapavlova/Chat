@@ -20,12 +20,14 @@ namespace Infrastructure.Repository
             _context = context;
         }
 
-        public async Task<List<Chat>> GetChatsByUserId(int userId)
+        public async Task<List<Chat>> GetChatsByUserId(int userId, int page, int pageSize)
         {
             var chats = new List<Chat>();
             var chatsUserIn = await _context.UsersChats
                 .Where(ur => ur.UserId == userId && ur.DateComeOut == null)
                 .OrderByDescending(ur => ur.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
 
             foreach (var room in chatsUserIn)
@@ -44,7 +46,7 @@ namespace Infrastructure.Repository
                 .Where(ur => ur.ChatId == chatId && ur.DateComeOut == null)
                 .OrderByDescending(ur => ur.Id)
                 .ToListAsync();
-            
+
             foreach (var user in usersInChat)
             {
                 user.User = await _context.Users.FirstOrDefaultAsync(u => u.Id == user.UserId);
@@ -68,12 +70,7 @@ namespace Infrastructure.Repository
 
         public async Task<UserChat> ComeOutOfChat(int userId, int chatId)
         {
-            var userChat = await _context.UsersChats
-                .OrderByDescending(ur => ur.Id)
-                .FirstOrDefaultAsync(ur => 
-                    ur.UserId == userId && 
-                    ur.ChatId == chatId &&
-                    ur.DateComeOut == null);
+            var userChat = await CheckUserInChat(userId, chatId);
 
             if (userChat == null) 
                 return null;

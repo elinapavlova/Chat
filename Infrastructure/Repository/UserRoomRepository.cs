@@ -20,12 +20,14 @@ namespace Infrastructure.Repository
             _context = context;
         }
 
-        public async Task<List<Room>> GetRoomsByUserId(int userId)
+        public async Task<List<Room>> GetRoomsByUserId(int userId, int page, int pageSize)
         {
             var rooms = new List<Room>();
             var roomsUserIn = await _context.UsersRooms
                 .Where(ur => ur.UserId == userId && ur.DateComeOut == null)
                 .OrderByDescending(ur => ur.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
 
             foreach (var room in roomsUserIn)
@@ -68,12 +70,7 @@ namespace Infrastructure.Repository
         
         public async Task<UserRoom> ComeOutOfRoom(int userId, int roomId)
         {
-            var userRoom = await _context.UsersRooms
-                .OrderByDescending(ur => ur.Id)
-                .FirstOrDefaultAsync(ur => 
-                    ur.UserId == userId && 
-                    ur.RoomId == roomId &&
-                    ur.DateComeOut == null);
+            var userRoom = await CheckUserInRoom(userId, roomId);
 
             if (userRoom == null) 
                 return null;

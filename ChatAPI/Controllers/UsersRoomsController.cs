@@ -31,11 +31,13 @@ namespace ChatAPI.Controllers
         /// Get rooms which user in
         /// </summary>
         /// <param name="userId"></param>
+        /// <param name="page"></param>
+        /// <param name="pageSize"></param>
         /// <returns></returns>
-        [HttpGet("{userId:int}")]
-        public async Task<ActionResult<ResultContainer<ICollection<RoomDto>>>> GetRoomsUserIn(int userId)
+        [HttpGet("{userId:int}/{page:int}/{pageSize:int}")]
+        public async Task<ActionResult<ResultContainer<ICollection<RoomDto>>>> GetRoomsUserIn(int userId, int page, int pageSize)
             => await ReturnResult<ResultContainer<ICollection<RoomDto>>, ICollection<RoomDto>>
-                (_userRoomService.GetRoomsUserIn(userId));
+                (_userRoomService.GetRoomsUserIn(userId, page, pageSize));
         
         /// <summary>
         /// Come in room

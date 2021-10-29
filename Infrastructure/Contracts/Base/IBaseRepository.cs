@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Infrastructure.Filter;
 using Models.Base;
 
-namespace Infrastructure.Contracts
+namespace Infrastructure.Contracts.Base
 {
     public interface IBaseRepository<TModel, in TFilter> 
         where TModel : BaseModel

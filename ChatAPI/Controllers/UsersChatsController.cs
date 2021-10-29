@@ -26,16 +26,19 @@ namespace ChatAPI.Controllers
         {
             _userChatService = userChatService;
         }
-        
+
         /// <summary>
-        /// Get chat which user in
+        /// Get chats which user in
         /// </summary>
         /// <param name="userId"></param>
+        /// <param name="page"></param>
+        /// <param name="pageSize"></param>
         /// <returns></returns>
-        [HttpGet("{userId:int}")]
-        public async Task<ActionResult<ResultContainer<ICollection<ChatDto>>>> GetChatUserIn(int userId)
+        [HttpGet]
+        public async Task<ActionResult<ResultContainer<ICollection<ChatDto>>>> GetChatUserIn
+            (int userId, int page, int pageSize)
             => await ReturnResult<ResultContainer<ICollection<ChatDto>>, ICollection<ChatDto>>
-                (_userChatService.GetChatsUserIn(userId));
+                (_userChatService.GetChatsUserIn(userId, page, pageSize));
         
         /// <summary>
         /// Come in chat

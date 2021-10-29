@@ -1,4 +1,5 @@
-﻿using Infrastructure.Filter;
+﻿using Infrastructure.Contracts.Base;
+using Infrastructure.Filter;
 using Models;
 
 namespace Infrastructure.Contracts

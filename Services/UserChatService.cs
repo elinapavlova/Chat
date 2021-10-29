@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
 using Infrastructure.Contracts;
+using Infrastructure.Options;
 using Infrastructure.Result;
 using Models;
 using Models.Dtos.Chat;
@@ -21,6 +22,7 @@ namespace Services
         private readonly IUserService _userService;
         private readonly IChatService _chatService;
         private readonly IRoomService _roomService;
+        private readonly PagingOptions _pagingOptions;
 
         public UserChatService
         (
@@ -29,7 +31,8 @@ namespace Services
             IUserService userService,
             IChatService chatService,
             IUserRoomService userRoomService,
-            IRoomService roomService
+            IRoomService roomService,
+            PagingOptions pagingOptions
         )
         {
             _userChatRepository = userChatRepository;
@@ -38,6 +41,7 @@ namespace Services
             _chatService = chatService;
             _userRoomService = userRoomService;
             _roomService = roomService;
+            _pagingOptions = pagingOptions;
         }
         
         /// <summary>
@@ -82,7 +86,7 @@ namespace Services
         /// </summary>
         /// <param name="userId"></param>
         /// <returns></returns>
-        public async Task<ResultContainer<ICollection<ChatDto>>> GetChatsUserIn(int userId)
+        public async Task<ResultContainer<ICollection<ChatDto>>> GetChatsUserIn(int userId, int page, int pageSize)
         {
             var result = new ResultContainer<ICollection<ChatDto>>();
             var user = await _userService.FindByIdAsync(userId);
@@ -93,7 +97,13 @@ namespace Services
                 return result;
             }
             
-            var chats = await _userChatRepository.GetChatsByUserId(userId);
+            if (page < 1)
+                page = _pagingOptions.DefaultPageNumber;
+            
+            if (pageSize < 1)
+                pageSize = _pagingOptions.DefaultPageSize;
+
+            var chats = await _userChatRepository.GetChatsByUserId(userId, page, pageSize);
 
             result = _mapper.Map<ResultContainer<ICollection<ChatDto>>>(chats);
             return result;

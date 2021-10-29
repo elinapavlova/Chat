@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Infrastructure.Contracts.Base;
 using Infrastructure.Filter;
 using Models;
 

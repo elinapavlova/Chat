@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
 using Infrastructure.Contracts;
+using Infrastructure.Options;
 using Infrastructure.Result;
 using Models;
 using Models.Dtos.Room;
@@ -19,19 +20,22 @@ namespace Services
         private readonly IMapper _mapper;
         private readonly IUserService _userService;
         private readonly IRoomService _roomService;
+        private readonly PagingOptions _pagingOptions;
 
         public UserRoomService
         (
             IUserRoomRepository userRoomRepository,
             IMapper mapper,
             IUserService userService,
-            IRoomService roomService
+            IRoomService roomService,
+            PagingOptions pagingOptions
         )
         {
             _userRoomRepository = userRoomRepository;
             _mapper = mapper;
             _userService = userService;
             _roomService = roomService;
+            _pagingOptions = pagingOptions;
         }
         
         /// <summary>
@@ -63,8 +67,10 @@ namespace Services
         /// Получить список комнат, в которых состоит пользователь
         /// </summary>
         /// <param name="userId"></param>
+        /// <param name="page"></param>
+        /// <param name="pageSize"></param>
         /// <returns></returns>
-        public async Task<ResultContainer<ICollection<RoomDto>>> GetRoomsUserIn(int userId)
+        public async Task<ResultContainer<ICollection<RoomDto>>> GetRoomsUserIn(int userId, int page, int pageSize)
         {
             var result = new ResultContainer<ICollection<RoomDto>>();
             var user = await _userService.FindByIdAsync(userId);
@@ -75,7 +81,13 @@ namespace Services
                 return result;
             }
             
-            var rooms = await _userRoomRepository.GetRoomsByUserId(userId);
+            if (page < 1)
+                page = _pagingOptions.DefaultPageNumber;
+            
+            if (pageSize < 1)
+                pageSize = _pagingOptions.DefaultPageSize;
+            
+            var rooms = await _userRoomRepository.GetRoomsByUserId(userId, page, pageSize);
 
             result = _mapper.Map<ResultContainer<ICollection<RoomDto>>>(rooms);
             return result;
