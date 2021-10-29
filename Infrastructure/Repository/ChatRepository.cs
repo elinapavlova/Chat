@@ -43,11 +43,13 @@ namespace Infrastructure.Repository
             return chat;
         }
 
-        public async Task<ICollection<Chat>> FindByNameAsync(string title)
+        public async Task<ICollection<Chat>> FindByNameAsync(string title, int page, int pageSize)
         {
             var chats = await _context.Chats
                 .Where(r => r.Title.Contains(title))
                 .OrderByDescending(r => r.DateCreated)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
                 .ToListAsync();
             return chats;
         }

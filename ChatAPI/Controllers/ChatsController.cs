@@ -44,6 +44,7 @@ namespace ChatAPI.Controllers
         /// Get chats list by name
         /// </summary>
         /// <param name="name"></param>
+        /// <param name="page"></param>
         /// <response code="200">Return the chat</response>
         /// <response code="400">If the chats don't exist</response>
         /// <response code="401">If the User wasn't authorized</response>
@@ -51,9 +52,9 @@ namespace ChatAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult<ICollection<ChatDto>>> FindByNameAsync(string name)
+        public async Task<ActionResult<ICollection<ChatDto>>> FindByNameAsync(string name, int page)
             => await ReturnResult<ResultContainer<ICollection<ChatDto>>, ICollection<ChatDto>>
-                (_chatService.FindByNameAsync(name));
+                (_chatService.FindByNameAsync(name, page, _pageSize));
 
         /// <summary>
         /// Get chat with messages by page
@@ -62,10 +63,12 @@ namespace ChatAPI.Controllers
         /// <param name="page"></param>
         /// <response code="200">Return the chat</response>
         /// <response code="400">If the chat doesn't exist</response>
+        /// <response code="404">If there are not messages at this page</response>
         /// <response code="401">If the User wasn't authorized</response>
         [HttpGet("{id:int}/{page:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<ChatResponseDto>> GetByIdWithMessagesAsync(int id, int page)
             => await ReturnResult<ResultContainer<ChatResponseDto>, ChatResponseDto>

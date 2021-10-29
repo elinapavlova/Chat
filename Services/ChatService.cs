@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
 using Infrastructure.Contracts;
-using Infrastructure.Filter;
 using Infrastructure.Options;
 using Infrastructure.Result;
 using Models;
@@ -44,6 +43,7 @@ namespace Services
             var chat = await _repository.GetById(chatDto.Id);
             var result = new ResultContainer<ChatDto>();
             
+            // Если комната/пользователь не существует или чат уже существует
             if (room.ErrorType.HasValue || chat != null || user.ErrorType.HasValue)
             {
                 result.ErrorType = ErrorType.BadRequest;
@@ -57,36 +57,21 @@ namespace Services
             return result;
         }
 
-        public async Task<ResultContainer<ICollection<ChatDto>>> FindByNameAsync(string title)
+        public async Task<ResultContainer<ICollection<ChatDto>>> FindByNameAsync(string title, int page, int pageSize)
         {
             var result = new ResultContainer<ICollection<ChatDto>>();
-            var chats = await _repository.FindByNameAsync(title);
+            
+            if (page < 1)
+                page = _pagingOptions.DefaultPageNumber;
 
-            if (chats == null)
+            var chats = await _repository.FindByNameAsync(title, page, pageSize);
+            if (chats.Count == 0)
             {
                 result.ErrorType = ErrorType.NotFound;
                 return result;
             }
             
             result = _mapper.Map<ResultContainer<ICollection<ChatDto>>>(chats);
-            return result;
-        }
-
-        public async Task<ResultContainer<ICollection<ChatDto>>> GetPageAsync(int page, int pageSize, string columnName, bool isDescending)
-        {
-            if (page < 1)
-                page = _pagingOptions.DefaultPageNumber;
-            
-            if (pageSize < 1)
-                pageSize = _pagingOptions.DefaultPageSize;
-            
-            var filter = new BaseFilterDto
-            {
-                Paging = new FilterPagingDto {PageNumber = page, PageSize = pageSize},
-                Sort = new FilterSortDto {ColumnName = columnName, IsDescending = isDescending}
-            };
-            
-            var result = _mapper.Map<ResultContainer<ICollection<ChatDto>>>(await _repository.GetFiltered(filter));
             return result;
         }
 
@@ -108,12 +93,20 @@ namespace Services
         public async Task<ResultContainer<ChatResponseDto>> GetByIdWithMessagesAsync(int id, int page, int pageSize)
         {
             var result = new ResultContainer<ChatResponseDto>();
-            
+            var chat = await _repository.GetByIdWithMessagesAsync(id, page, pageSize);
+
             if (page < 1)
                 page = _pagingOptions.DefaultPageNumber;
 
-            var chat = await _repository.GetByIdWithMessagesAsync(id, page, pageSize);
+            // Если чат не найден
             if (chat == null)
+            {
+                result.ErrorType = ErrorType.BadRequest;
+                return result;
+            }
+
+            // Если на данной странице нет сообщений
+            if (chat.Messages == null && page > 1)
             {
                 result.ErrorType = ErrorType.NotFound;
                 return result;
@@ -122,6 +115,5 @@ namespace Services
             result = _mapper.Map<ResultContainer<ChatResponseDto>>(chat);
             return result;
         }
-
     }
 }
