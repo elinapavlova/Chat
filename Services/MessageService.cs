@@ -64,7 +64,7 @@ namespace Services
             var resultMessage = await ValidateMessage(messageDto);
             var resultUpload = new ResultContainer<UploadResponseDto>();
             
-            // Если сообщение невалидное или не содержит файлов и текста - вернуть ошибку
+            // Если сообщение невалидное или не содержит файлов и текста - вернуть
             if (resultMessage.ErrorType.HasValue || messageDto.Files == null && messageDto.Text == null)
                 return resultMessage;
             
@@ -98,7 +98,7 @@ namespace Services
             var userInChat = 
                 await _userChatService.CheckUserInChat(messageDto.UserId, messageDto.ChatId);
 
-            // Если данные валидны
+            // Если пользователь состоит в чате
             if (!userInChat.ErrorType.HasValue) 
                 return result;
             

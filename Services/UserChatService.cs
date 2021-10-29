@@ -54,7 +54,7 @@ namespace Services
             var chat = await _chatService.FindByIdAsync(userChatDto.ChatId);
             var result = new ResultContainer<UserChatDto>();
             
-            // Если чата не существует
+            // Если чат не существует
             if (chat.ErrorType.HasValue)
             {
                 result.ErrorType = ErrorType.BadRequest;
@@ -85,6 +85,8 @@ namespace Services
         /// Получить список чатов, в которых состоит пользователь
         /// </summary>
         /// <param name="userId"></param>
+        /// <param name="page"></param>
+        /// <param name="pageSize"></param>
         /// <returns></returns>
         public async Task<ResultContainer<ICollection<ChatDto>>> GetChatsUserIn(int userId, int page, int pageSize)
         {
