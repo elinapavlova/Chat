@@ -43,7 +43,7 @@ namespace Services
             var result = new ResultContainer<MessageResponseDto>();
             var message = await _messageRepository.GetById(id);
             
-            if (id < 1 || message == null)
+            if (message == null)
             {
                 result.ErrorType = ErrorType.NotFound;
                 return result;

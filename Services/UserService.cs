@@ -57,7 +57,7 @@ namespace Services
             
             if (user == null)
             {
-                result.ErrorType = ErrorType.BadRequest;
+                result.ErrorType = ErrorType.NotFound;
                 return result;
             }  
             
@@ -72,7 +72,7 @@ namespace Services
             
             if (user == null)
             {
-                result.ErrorType = ErrorType.BadRequest;
+                result.ErrorType = ErrorType.NotFound;
                 return result;
             }  
             
