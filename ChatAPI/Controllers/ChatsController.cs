@@ -12,7 +12,7 @@ using Services.Contracts;
 namespace ChatAPI.Controllers
 {
     [ApiVersion("1.0")]
-    [Route("/api/v{version:apiVersion}/[controller]/[action]")]
+    [Route("/api/v{version:apiVersion}/[controller]")]
     [ApiController]
     [Authorize]
     public class ChatsController : BaseController
