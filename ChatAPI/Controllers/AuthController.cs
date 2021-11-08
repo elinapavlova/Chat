@@ -30,10 +30,12 @@ namespace ChatAPI.Controllers
         /// </summary>
         /// <param name="userCredentials"></param>
         /// <response code="200">Return access token, refresh tokens and expiration</response>
-        /// <response code="400">If the password is not right or the user doesn't exist</response>
+        /// <response code="404">If the user doesn't exist</response>
+        /// <response code="400">If the password is not right</response>
         [HttpPost]
         [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<ResultContainer<AccessTokenDto>>> LoginAsync(UserCredentialsDto userCredentials)
         {
@@ -62,12 +64,14 @@ namespace ChatAPI.Controllers
         /// </summary>
         /// <param name="refreshToken"></param>
         /// <response code="200">Return new access token, refresh token and expiration</response>
-        /// <response code="400">If user doesn't exist or token lifetime is expired or refresh token isn't right</response>
+        /// <response code="400">If token lifetime is expired or refresh token isn't right</response>
+        /// <response code="404">If user doesn't exist</response>
         /// <response code="401">If the User wasn't authorized</response>
         [HttpPost]
         [Authorize]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<ResultContainer<AccessTokenDto>>> RefreshTokenAsync(RefreshTokenDto refreshToken)
         {

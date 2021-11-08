@@ -30,26 +30,9 @@ namespace Services
             _passwordHasher = passwordHasher;
         }
 
-        private async Task<ResultContainer<AccessTokenDto>> CreateAccessTokenAsync(string email, string password)
+        private async Task<ResultContainer<AccessTokenDto>> CreateAccessTokenAsync(UserCredentialsDto data)
         {
-            var user = await _userService.FindByEmailAsync(email);
-            var result = new ResultContainer<AccessTokenDto>();
-            
-            if (user.Data == null)
-            {
-                result.ErrorType = ErrorType.NotFound;
-                return result;
-            }
-
-            var isEqualPasswords = _passwordHasher.PasswordMatches(password, user.Data.Password);
-            
-            if (!isEqualPasswords)
-            {
-                result.ErrorType = ErrorType.BadRequest;
-                return result;
-            }
-
-            result = _mapper.Map<ResultContainer<AccessTokenDto>>(_tokenService.CreateAccessToken(user.Data));
+            var result = _mapper.Map<ResultContainer<AccessTokenDto>>(_tokenService.CreateAccessToken(data));
             return result;
         }
 
@@ -59,7 +42,15 @@ namespace Services
             var token = _tokenService.TakeRefreshToken(refreshToken);
             var user = await _userService.FindByEmailAsync(userEmail);
             
-            if (token == null || token.IsExpired() || user.Data == null)
+            // Если пользователь не существует
+            if (user.Data == null)
+            {
+                result.ErrorType = ErrorType.NotFound;
+                return result;
+            }
+            
+            // Если refresh token недействительный или  время жизни токена истекло
+            if (token == null || token.IsExpired())
             {
                 result.ErrorType = ErrorType.BadRequest;
                 return result;
@@ -74,13 +65,23 @@ namespace Services
             var user = await _userService.FindByEmailAsync(data.Email);
             var result = new ResultContainer<AccessTokenDto>();
 
+            // Если пользователь не существует
             if (user.Data == null)
+            {
+                result.ErrorType = ErrorType.NotFound;
+                return result;
+            }
+
+            var isEqualPasswords = _passwordHasher.PasswordMatches(data.Password, user.Data.Password);
+            
+            // Если введен неверный пароль
+            if (!isEqualPasswords)
             {
                 result.ErrorType = ErrorType.BadRequest;
                 return result;
             }
-            
-            result = await CreateAccessTokenAsync(data.Email, data.Password);
+
+            result = await CreateAccessTokenAsync(user.Data);
             return result;
         }
     }
