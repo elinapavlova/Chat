@@ -36,7 +36,15 @@ namespace Services
             var room = await _roomRepository.GetById(roomDto.Id);
             var result = new ResultContainer<RoomDto>();
             
-            if (user.ErrorType.HasValue || room != null)
+            // Если пользователь не существует
+            if (user.ErrorType.HasValue)
+            {
+                result.ErrorType = ErrorType.NotFound;
+                return result;
+            }
+            
+            // Если комната уже существует
+            if (room != null)
             {
                 result.ErrorType = ErrorType.BadRequest;
                 return result;

@@ -32,10 +32,12 @@ namespace ChatAPI.Controllers
         /// <param name="room"></param>
         /// <response code="200">Return the room</response>
         /// <response code="400">If the room already exists</response>
+        /// <response code="404">If the user doesn't exist</response>
         /// <response code="401">If the User wasn't authorized</response>
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<RoomDto>> CreateRoomAsync(RoomDto room)
             => await ReturnResult<ResultContainer<RoomDto>, RoomDto>(_roomService.CreateRoomAsync(room));
