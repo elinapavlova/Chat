@@ -23,13 +23,13 @@ namespace Infrastructure.Repository
             _chatRepository = chatRepository;
         }
 
-        public async Task<Room> GetByIdWithChatsAsync(int id, BaseFilterDto filter)
+        public async Task<Room> GetByIdWithChats(int id, BaseFilterDto filter)
         {
             var room = await _context.Rooms.FirstOrDefaultAsync(u => u.Id == id);
             if (room == null)
                 return null;
 
-            var chats = await _chatRepository.GetByRoomIdAsync(id, filter);
+            var chats = await _chatRepository.GetByRoomId(id, filter);
             if (chats.Count == 0)
                 return room;
 
@@ -37,7 +37,7 @@ namespace Infrastructure.Repository
             return room;
         }
 
-        public async Task<ICollection<Room>> FindByNameAsync(string title, BaseFilterDto filter)
+        public async Task<ICollection<Room>> GetByName(string title, BaseFilterDto filter)
         {
             var rooms = _context.Rooms.Where(r => r.Title.Contains(title));
             var filteredRooms = await GetFilteredSource(rooms, filter);

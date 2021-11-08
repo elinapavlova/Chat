@@ -38,7 +38,7 @@ namespace Infrastructure.Repository
             return chats;
         }
 
-        public async Task<List<User>> GetUsersInChat(int chatId)
+        public async Task<List<User>> GetUsersByChatId(int chatId)
         {
             var users = new List<User>();
             var usersInChat = await _context.UsersChats

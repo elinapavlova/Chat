@@ -6,8 +6,8 @@ namespace Services.Contracts
 {
     public interface IMessageService
     {
-        Task<ResultContainer<MessageResponseDto>> CreateMessageAsync(MessageRequestDto message);
-        Task<ResultContainer<MessageResponseDto>> FindByIdAsync(int id);
-        Task<ResultContainer<int?>> CountMessagesInChatAsync(int chatId);
+        Task<ResultContainer<MessageResponseDto>> Create(MessageRequestDto message);
+        Task<ResultContainer<MessageResponseDto>> GetById(int id);
+        Task<ResultContainer<int?>> CountMessagesByChatId(int chatId);
     }
 }

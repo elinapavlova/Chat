@@ -59,7 +59,7 @@ namespace ChatAPI.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<UserChatDto>> ComeIn(UserChatDto userChatDto)
             => await ReturnResult<ResultContainer<UserChatDto>, UserChatDto>
-                (_userChatService.CreateUserChatAsync(userChatDto));
+                (_userChatService.Create(userChatDto));
 
         /// <summary>
         /// Come out of chat
@@ -88,8 +88,8 @@ namespace ChatAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult<ICollection<UserDto>>> GetUsersInChat(int chatId)
+        public async Task<ActionResult<ICollection<UserDto>>> GetUsersByChatId(int chatId)
             => await ReturnResult<ResultContainer<ICollection<UserDto>>, ICollection<UserDto>>
-                (_userChatService.GetUsersInChat(chatId));
+                (_userChatService.GetUsersByChatId(chatId));
     }
 }

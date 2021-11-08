@@ -38,7 +38,7 @@ namespace Infrastructure.Repository
             return rooms;
         }
         
-        public async Task<List<User>> GetUsersInRoom(int roomId)
+        public async Task<List<User>> GetUsersByRoomId(int roomId)
         {
             var users = new List<User>();
             var usersInRoom = await _context.UsersRooms

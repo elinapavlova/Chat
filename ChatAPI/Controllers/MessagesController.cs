@@ -37,9 +37,9 @@ namespace ChatAPI.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult<MessageResponseDto>> CreateMessageAsync([FromForm] MessageRequestDto message)
+        public async Task<ActionResult<MessageResponseDto>> Create([FromForm] MessageRequestDto message)
             => await ReturnResult<ResultContainer<MessageResponseDto>, MessageResponseDto>
-                (_messageService.CreateMessageAsync(message));
+                (_messageService.Create(message));
 
         /// <summary>
         /// Get message with files by Id
@@ -53,8 +53,8 @@ namespace ChatAPI.Controllers
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult<MessageResponseDto>> FindByIdAsync(int id)
+        public async Task<ActionResult<MessageResponseDto>> GetById(int id)
             => await ReturnResult<ResultContainer<MessageResponseDto>, MessageResponseDto>
-                (_messageService.FindByIdAsync(id));
+                (_messageService.GetById(id));
     }
 }

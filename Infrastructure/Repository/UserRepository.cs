@@ -18,7 +18,7 @@ namespace Infrastructure.Repository
             _context = context;
         }
 
-        public async Task<User> FindByEmailAsync(string email)
+        public async Task<User> GetByEmail(string email)
         {
             return await _context.Users
                 .SingleOrDefaultAsync(u => u.Email == email);

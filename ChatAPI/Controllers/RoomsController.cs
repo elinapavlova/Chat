@@ -39,8 +39,8 @@ namespace ChatAPI.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult<RoomDto>> CreateRoomAsync(RoomDto room)
-            => await ReturnResult<ResultContainer<RoomDto>, RoomDto>(_roomService.CreateRoomAsync(room));
+        public async Task<ActionResult<RoomDto>> Create(RoomDto room)
+            => await ReturnResult<ResultContainer<RoomDto>, RoomDto>(_roomService.Create(room));
 
         /// <summary>
         /// Get rooms list by name
@@ -55,9 +55,9 @@ namespace ChatAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult<ICollection<RoomDto>>> FindByNameAsync(string name, int page, int pageSize)
+        public async Task<ActionResult<ICollection<RoomDto>>> GetByName(string name, int page, int pageSize)
             => await ReturnResult<ResultContainer<ICollection<RoomDto>>, ICollection<RoomDto>>
-                (_roomService.FindByNameAsync(name, page, pageSize));
+                (_roomService.GetByName(name, page, pageSize));
 
         /// <summary>
         /// Get chats list in the room by page
@@ -72,9 +72,9 @@ namespace ChatAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult<RoomResponseDto>> GetByIdWithChatsAsync(int id, int page, int pageSize)
+        public async Task<ActionResult<RoomResponseDto>> GetByIdWithChats(int id, int page, int pageSize)
             => await ReturnResult<ResultContainer<RoomResponseDto>, RoomResponseDto>
-                (_roomService.GetByIdWithChatsAsync(id, page, pageSize));
+                (_roomService.GetByIdWithChats(id, page, pageSize));
 
         /// <summary>
         /// Get filtered rooms list by page
@@ -86,9 +86,9 @@ namespace ChatAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult<ICollection<RoomDto>>> GetPageAsync
+        public async Task<ActionResult<ICollection<RoomDto>>> GetPage
             (int page, int pageSize, string columnName, bool isDescending)
             => await ReturnResult<ResultContainer<ICollection<RoomDto>>, ICollection<RoomDto>>
-                (_roomService.GetPageAsync(page, pageSize, columnName, isDescending));
+                (_roomService.GetPage(page, pageSize, columnName, isDescending));
     }
 }

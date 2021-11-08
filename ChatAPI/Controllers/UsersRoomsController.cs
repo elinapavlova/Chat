@@ -59,7 +59,7 @@ namespace ChatAPI.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<UserRoomDto>> ComeIn(UserRoomDto userRoomDto)
             => await ReturnResult<ResultContainer<UserRoomDto>, UserRoomDto>
-                (_userRoomService.CreateUserRoomAsync(userRoomDto));
+                (_userRoomService.Create(userRoomDto));
 
         /// <summary>
         /// Come out of room
@@ -88,8 +88,8 @@ namespace ChatAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult<ICollection<UserDto>>> GetUsersInRoom(int roomId)
+        public async Task<ActionResult<ICollection<UserDto>>> GetUsersByRoomId(int roomId)
             => await ReturnResult<ResultContainer<ICollection<UserDto>>, ICollection<UserDto>>
-                (_userRoomService.GetUsersInRoom(roomId));
+                (_userRoomService.GetUsersByRoomId(roomId));
     }
 }

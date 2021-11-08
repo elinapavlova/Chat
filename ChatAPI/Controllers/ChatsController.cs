@@ -36,8 +36,8 @@ namespace ChatAPI.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult<ChatDto>> CreateChatAsync(ChatDto chat)
-            => await ReturnResult<ResultContainer<ChatDto>, ChatDto>(_chatService.CreateChatAsync(chat));
+        public async Task<ActionResult<ChatDto>> Create(ChatDto chat)
+            => await ReturnResult<ResultContainer<ChatDto>, ChatDto>(_chatService.Create(chat));
 
         /// <summary>
         /// Get chats list by name
@@ -52,9 +52,9 @@ namespace ChatAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult<ICollection<ChatDto>>> FindByNameAsync(string name, int page, int pageSize)
+        public async Task<ActionResult<ICollection<ChatDto>>> GetByName(string name, int page, int pageSize)
             => await ReturnResult<ResultContainer<ICollection<ChatDto>>, ICollection<ChatDto>>
-                (_chatService.FindByNameAsync(name, page, pageSize));
+                (_chatService.GetByName(name, page, pageSize));
 
         /// <summary>
         /// Get chat with messages by page
@@ -69,8 +69,8 @@ namespace ChatAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult<ChatResponseDto>> GetByIdWithMessagesAsync(int id, int page, int pageSize)
+        public async Task<ActionResult<ChatResponseDto>> GetByIdWithMessages(int id, int page, int pageSize)
             => await ReturnResult<ResultContainer<ChatResponseDto>, ChatResponseDto>
-                (_chatService.GetByIdWithMessagesAsync(id, page, pageSize));
+                (_chatService.GetByIdWithMessages(id, page, pageSize));
     }
 }

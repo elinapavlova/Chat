@@ -37,7 +37,7 @@ namespace ChatAPI.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<ResultContainer<AccessTokenDto>>> LoginAsync(UserCredentialsDto userCredentials)
+        public async Task<ActionResult<ResultContainer<AccessTokenDto>>> Login(UserCredentialsDto userCredentials)
         {
             return await ReturnResult<ResultContainer<AccessTokenDto>, AccessTokenDto>
                 (_authenticationService.Login(userCredentials));
@@ -53,10 +53,10 @@ namespace ChatAPI.Controllers
         [AllowAnonymous]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<ResultContainer<UserDto>>> RegisterAsync(UserCredentialsDto userCredentials)
+        public async Task<ActionResult<ResultContainer<UserDto>>> Register(UserCredentialsDto userCredentials)
         {
             return await ReturnResult<ResultContainer<UserDto>, UserDto>
-                (_userService.CreateUserAsync(userCredentials));
+                (_userService.Create(userCredentials));
         }
 
         /// <summary>
@@ -73,10 +73,10 @@ namespace ChatAPI.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult<ResultContainer<AccessTokenDto>>> RefreshTokenAsync(RefreshTokenDto refreshToken)
+        public async Task<ActionResult<ResultContainer<AccessTokenDto>>> RefreshToken(RefreshTokenDto refreshToken)
         {
             return await ReturnResult<ResultContainer<AccessTokenDto>,AccessTokenDto>
-            (_authenticationService.RefreshTokenAsync(refreshToken.RefreshToken, refreshToken.EmailUser));
+            (_authenticationService.RefreshToken(refreshToken.RefreshToken, refreshToken.EmailUser));
         }
     }
 }

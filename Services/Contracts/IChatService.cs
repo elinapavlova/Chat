@@ -8,10 +8,10 @@ namespace Services.Contracts
 {
     public interface IChatService
     {
-        Task<ResultContainer<ChatDto>> CreateChatAsync(ChatDto chat);
-        Task<ResultContainer<ICollection<ChatDto>>> FindByNameAsync(string title, int page, int pageSize);
-        Task<ResultContainer<ChatDto>> FindByIdAsync(int id);
-        Task<ResultContainer<ChatResponseDto>> GetByIdWithMessagesAsync(int id, int page, int pageSize);
-        Task<ResultContainer<int?>> CountChatsByRoomIdAsync(int roomId);
+        Task<ResultContainer<ChatDto>> Create(ChatDto chat);
+        Task<ResultContainer<ICollection<ChatDto>>> GetByName(string title, int page, int pageSize);
+        Task<ResultContainer<ChatDto>> GetById(int id);
+        Task<ResultContainer<ChatResponseDto>> GetByIdWithMessages(int id, int page, int pageSize);
+        Task<ResultContainer<int?>> CountChatsByRoomId(int roomId);
     }
 }

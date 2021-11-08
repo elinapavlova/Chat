@@ -23,13 +23,13 @@ namespace Infrastructure.Repository
             _messageRepository = messageRepository;
         }
         
-        public async Task<Chat> GetByIdWithMessagesAsync(int id, BaseFilterDto filter)
+        public async Task<Chat> GetByIdWithMessages(int id, BaseFilterDto filter)
         {
             var chat = await _context.Chats.FirstOrDefaultAsync(u => u.Id == id);
             if (chat == null)
                 return null;
 
-            var messages = await _messageRepository.GetByChatIdAsync(id, filter);
+            var messages = await _messageRepository.GetByChatId(id, filter);
             if (messages.Count == 0)
                 return chat;
 
@@ -37,7 +37,7 @@ namespace Infrastructure.Repository
             return chat;
         }
 
-        public async Task<ICollection<Chat>> FindByNameAsync(string title, BaseFilterDto filter)
+        public async Task<ICollection<Chat>> GetByName(string title, BaseFilterDto filter)
         {
             var chats = _context.Chats.Where(r => r.Title.Contains(title));
             var filteredChats = await GetFilteredSource(chats, filter);
@@ -45,7 +45,7 @@ namespace Infrastructure.Repository
             return filteredChats;
         }
 
-        public async Task<ICollection<Chat>> GetByRoomIdAsync(int roomId, BaseFilterDto filter)
+        public async Task<ICollection<Chat>> GetByRoomId(int roomId, BaseFilterDto filter)
         {
             var chats = _context.Chats.Where(r => r.RoomId == roomId);
             var filteredChats = await GetFilteredSource(chats, filter);
@@ -62,11 +62,6 @@ namespace Infrastructure.Repository
             var chatsInRoom = await _context.Chats.Where(c => c.RoomId == roomId).ToListAsync();
             var count = chatsInRoom.Count;
             return count;
-        }
-
-        public Task<int> Count()
-        {
-            throw new System.NotImplementedException();
         }
     }
 }

@@ -9,9 +9,9 @@ namespace Services.Contracts
 {
     public interface IUserChatService
     {
-        Task<ResultContainer<UserChatDto>> CreateUserChatAsync(UserChatDto userChatDto);
+        Task<ResultContainer<UserChatDto>> Create(UserChatDto userChatDto);
         Task<ResultContainer<ICollection<ChatDto>>> GetChatsUserIn(int userId, int page, int pageSize);
-        Task<ResultContainer<ICollection<UserDto>>> GetUsersInChat(int chatId);
+        Task<ResultContainer<ICollection<UserDto>>> GetUsersByChatId(int chatId);
         Task<ResultContainer<UserChatResponseDto>> ComeOutOfChat(int userId, int chatId);
         Task<ResultContainer<UserChatDto>> CheckUserInChat(int userId, int chatId);
     }

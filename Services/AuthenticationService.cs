@@ -30,17 +30,17 @@ namespace Services
             _passwordHasher = passwordHasher;
         }
 
-        private async Task<ResultContainer<AccessTokenDto>> CreateAccessTokenAsync(UserCredentialsDto data)
+        private async Task<ResultContainer<AccessTokenDto>> CreateAccessToken(UserCredentialsDto data)
         {
             var result = _mapper.Map<ResultContainer<AccessTokenDto>>(_tokenService.CreateAccessToken(data));
             return result;
         }
 
-        public async Task<ResultContainer<AccessTokenDto>> RefreshTokenAsync(string refreshToken, string userEmail)
+        public async Task<ResultContainer<AccessTokenDto>> RefreshToken(string refreshToken, string userEmail)
         {
             var result = new ResultContainer<AccessTokenDto>();
             var token = _tokenService.TakeRefreshToken(refreshToken);
-            var user = await _userService.FindByEmailAsync(userEmail);
+            var user = await _userService.GetByEmail(userEmail);
             
             // Если пользователь не существует
             if (user.Data == null)
@@ -62,7 +62,7 @@ namespace Services
 
         public async Task<ResultContainer<AccessTokenDto>> Login(UserCredentialsDto data)
         {
-            var user = await _userService.FindByEmailAsync(data.Email);
+            var user = await _userService.GetByEmail(data.Email);
             var result = new ResultContainer<AccessTokenDto>();
 
             // Если пользователь не существует
@@ -81,7 +81,7 @@ namespace Services
                 return result;
             }
 
-            result = await CreateAccessTokenAsync(user.Data);
+            result = await CreateAccessToken(user.Data);
             return result;
         }
     }

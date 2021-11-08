@@ -8,8 +8,8 @@ namespace Infrastructure.Contracts
 {
     public interface IRoomRepository : IBaseRepository<Room>
     {
-        Task<Room> GetByIdWithChatsAsync(int id, BaseFilterDto filter);
-        Task<ICollection<Room>> FindByNameAsync(string name, BaseFilterDto filter);
+        Task<Room> GetByIdWithChats(int id, BaseFilterDto filter);
+        Task<ICollection<Room>> GetByName(string name, BaseFilterDto filter);
         Task<ICollection<Room>> GetFiltered(BaseFilterDto filter);
     }
 }

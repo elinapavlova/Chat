@@ -9,7 +9,7 @@ namespace Infrastructure.Contracts
     public interface IUserRoomRepository : IBaseRepository<UserRoom>
     {
         Task<List<Room>> GetRoomsByUserId(int userId, BaseFilterDto filter);
-        Task<List<User>> GetUsersInRoom(int roomId);
+        Task<List<User>> GetUsersByRoomId(int roomId);
         Task<UserRoom> CheckUserInRoom(int userId, int roomId);
         Task<UserRoom> ComeOutOfRoom(int userId, int roomId);
     }

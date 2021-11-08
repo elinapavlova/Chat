@@ -40,7 +40,7 @@ namespace Services
         /// </summary>
         /// <param name="userRoomDto"></param>
         /// <returns></returns>
-        public async Task<ResultContainer<UserRoomDto>> CreateUserRoomAsync(UserRoomDto userRoomDto)
+        public async Task<ResultContainer<UserRoomDto>> Create(UserRoomDto userRoomDto)
         {
             var result = new ResultContainer<UserRoomDto>();
             var userInRoom = await CheckUserInRoom(userRoomDto.UserId, userRoomDto.RoomId);
@@ -70,7 +70,7 @@ namespace Services
         public async Task<ResultContainer<ICollection<RoomDto>>> GetRoomsUserIn(int userId, int page, int pageSize)
         {
             var result = new ResultContainer<ICollection<RoomDto>>();
-            var user = await _userService.FindByIdAsync(userId);
+            var user = await _userService.GetById(userId);
             
             // Если пользователь не существует
             if (user.ErrorType.HasValue)
@@ -102,10 +102,10 @@ namespace Services
         /// </summary>
         /// <param name="roomId"></param>
         /// <returns></returns>
-        public async Task<ResultContainer<ICollection<UserDto>>> GetUsersInRoom(int roomId)
+        public async Task<ResultContainer<ICollection<UserDto>>> GetUsersByRoomId(int roomId)
         {
             var result = new ResultContainer<ICollection<UserDto>>();
-            var room = await _roomService.FindByIdAsync(roomId);
+            var room = await _roomService.GetById(roomId);
             
             // Если комната не существует
             if (room.ErrorType.HasValue)
@@ -114,7 +114,7 @@ namespace Services
                 return result;
             }
 
-            var users = await _userRoomRepository.GetUsersInRoom(roomId);
+            var users = await _userRoomRepository.GetUsersByRoomId(roomId);
 
             result = _mapper.Map<ResultContainer<ICollection<UserDto>>>(users);
             return result;

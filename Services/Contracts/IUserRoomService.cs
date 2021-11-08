@@ -9,9 +9,9 @@ namespace Services.Contracts
 {
     public interface IUserRoomService
     {
-        Task<ResultContainer<UserRoomDto>> CreateUserRoomAsync(UserRoomDto userRoomDto);
+        Task<ResultContainer<UserRoomDto>> Create(UserRoomDto userRoomDto);
         Task<ResultContainer<ICollection<RoomDto>>> GetRoomsUserIn(int userId, int page, int pageSize);
-        Task<ResultContainer<ICollection<UserDto>>> GetUsersInRoom(int roomId);
+        Task<ResultContainer<ICollection<UserDto>>> GetUsersByRoomId(int roomId);
         Task<ResultContainer<UserRoomResponseDto>> ComeOutOfRoom(int userId, int roomId);
         Task<ResultContainer<UserRoomDto>> CheckUserInRoom(int userId, int roomId);
     }

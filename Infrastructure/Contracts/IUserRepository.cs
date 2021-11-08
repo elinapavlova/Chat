@@ -6,6 +6,6 @@ namespace Infrastructure.Contracts
 {
     public interface IUserRepository : IBaseRepository<User>
     {
-        Task<User> FindByEmailAsync(string email);
+        Task<User> GetByEmail(string email);
     }
 }

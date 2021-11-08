@@ -38,7 +38,7 @@ namespace Services
             _userChatService = userChatService;
         }
 
-        public async Task<ResultContainer<MessageResponseDto>> FindByIdAsync(int id)
+        public async Task<ResultContainer<MessageResponseDto>> GetById(int id)
         {
             var result = _mapper.Map<ResultContainer<MessageResponseDto>>(await _messageRepository.GetById(id));
             
@@ -53,7 +53,7 @@ namespace Services
             return result;
         }
         
-        public async Task<ResultContainer<int?>> CountMessagesInChatAsync(int chatId)
+        public async Task<ResultContainer<int?>> CountMessagesByChatId(int chatId)
         {
             var result = _mapper.Map<ResultContainer<int?>>(await _messageRepository.Count(chatId));
 
@@ -65,7 +65,7 @@ namespace Services
             return result;
         }
         
-        public async Task<ResultContainer<MessageResponseDto>> CreateMessageAsync(MessageRequestDto messageDto)
+        public async Task<ResultContainer<MessageResponseDto>> Create(MessageRequestDto messageDto)
         {
             var resultMessage = await CheckUserInChat(messageDto);
             var resultUpload = new ResultContainer<UploadResponseDto>();

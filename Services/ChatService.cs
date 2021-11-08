@@ -33,10 +33,10 @@ namespace Services
             _userService = userService;
         }
 
-        public async Task<ResultContainer<ChatDto>> CreateChatAsync(ChatDto chatDto)
+        public async Task<ResultContainer<ChatDto>> Create(ChatDto chatDto)
         {
-            var room = await _roomService.FindByIdAsync(chatDto.RoomId);
-            var user = await _userService.FindByIdAsync(chatDto.UserId);
+            var room = await _roomService.GetById(chatDto.RoomId);
+            var user = await _userService.GetById(chatDto.UserId);
             var chat = await _chatRepository.GetById(chatDto.Id);
             var result = new ResultContainer<ChatDto>();
             
@@ -61,7 +61,7 @@ namespace Services
             return result;
         }
 
-        public async Task<ResultContainer<ICollection<ChatDto>>> FindByNameAsync(string title, int page, int pageSize)
+        public async Task<ResultContainer<ICollection<ChatDto>>> GetByName(string title, int page, int pageSize)
         {
             var filter = new BaseFilterDto
             {
@@ -69,7 +69,7 @@ namespace Services
             };
             
             var result = _mapper.Map<ResultContainer<ICollection<ChatDto>>>
-                (await _chatRepository.FindByNameAsync(title, filter));
+                (await _chatRepository.GetByName(title, filter));
             
             if (result.Data.Count != 0)
                 return result;
@@ -78,7 +78,7 @@ namespace Services
             return result;
         }
 
-        public async Task<ResultContainer<ChatDto>> FindByIdAsync(int id)
+        public async Task<ResultContainer<ChatDto>> GetById(int id)
         {
             var result = new ResultContainer<ChatDto>();
             var chat = await _chatRepository.GetById(id);
@@ -93,7 +93,7 @@ namespace Services
             return result;
         }
 
-        public async Task<ResultContainer<ChatResponseDto>> GetByIdWithMessagesAsync(int id, int page, int pageSize)
+        public async Task<ResultContainer<ChatResponseDto>> GetByIdWithMessages(int id, int page, int pageSize)
         {
             var result = new ResultContainer<ChatResponseDto>();
             
@@ -102,7 +102,7 @@ namespace Services
                 Paging = new FilterPagingDto {PageNumber = page, PageSize = pageSize}
             };
             
-            var chat = await _chatRepository.GetByIdWithMessagesAsync(id, filter);
+            var chat = await _chatRepository.GetByIdWithMessages(id, filter);
 
             // Если чат не найден или на данной странице нет сообщений
             if (chat == null || chat.Messages == null && page > 1)
@@ -115,7 +115,7 @@ namespace Services
             return result;
         }
 
-        public async Task<ResultContainer<int?>> CountChatsByRoomIdAsync(int roomId)
+        public async Task<ResultContainer<int?>> CountChatsByRoomId(int roomId)
         {
             var result = _mapper.Map<ResultContainer<int?>>(await _chatRepository.Count(roomId));
             

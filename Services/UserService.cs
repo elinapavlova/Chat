@@ -29,9 +29,9 @@ namespace Services
             _passwordHasher = passwordHasher;
         }
 
-        public async Task<ResultContainer<UserDto>> CreateUserAsync(UserCredentialsDto userDto)
+        public async Task<ResultContainer<UserDto>> Create(UserCredentialsDto userDto)
         {
-            var existingUser = await _repository.FindByEmailAsync(userDto.Email);
+            var existingUser = await _repository.GetByEmail(userDto.Email);
             var result = new ResultContainer<UserDto>();
             var isEmailValid = EmailValidator.EmailIsValid(userDto.Email);
             
@@ -50,9 +50,9 @@ namespace Services
             return result;
         }
 
-        public async Task<ResultContainer<UserCredentialsDto>> FindByEmailAsync(string email)
+        public async Task<ResultContainer<UserCredentialsDto>> GetByEmail(string email)
         {
-            var user = await _repository.FindByEmailAsync(email);
+            var user = await _repository.GetByEmail(email);
             var result = new ResultContainer<UserCredentialsDto>();
             
             if (user == null)
@@ -65,7 +65,7 @@ namespace Services
             return result;
         }
         
-        public async Task<ResultContainer<UserCredentialsDto>> FindByIdAsync(int id)
+        public async Task<ResultContainer<UserCredentialsDto>> GetById(int id)
         {
             var user = await _repository.GetById(id);
             var result = new ResultContainer<UserCredentialsDto>();

@@ -45,9 +45,9 @@ namespace Services
         /// Добавить пользователя в чат
         /// </summary>
         /// <param name="userChatDto"></param>
-        public async Task<ResultContainer<UserChatDto>> CreateUserChatAsync(UserChatDto userChatDto)
+        public async Task<ResultContainer<UserChatDto>> Create(UserChatDto userChatDto)
         {
-            var chat = await _chatService.FindByIdAsync(userChatDto.ChatId);
+            var chat = await _chatService.GetById(userChatDto.ChatId);
             var result = new ResultContainer<UserChatDto>();
             
             // Если чат не существует
@@ -57,7 +57,7 @@ namespace Services
                 return result;
             }
             
-            var room = await _roomService.FindByIdAsync(chat.Data.RoomId);
+            var room = await _roomService.GetById(chat.Data.RoomId);
             var userInChat = await CheckUserInChat(userChatDto.UserId, userChatDto.ChatId);
             var userInRoom = 
                 await _userRoomService.CheckUserInRoom(userChatDto.UserId, room.Data.Id);
@@ -86,7 +86,7 @@ namespace Services
         public async Task<ResultContainer<ICollection<ChatDto>>> GetChatsUserIn(int userId, int page, int pageSize)
         {
             var result = new ResultContainer<ICollection<ChatDto>>();
-            var user = await _userService.FindByIdAsync(userId);
+            var user = await _userService.GetById(userId);
             
             // Если пользователь не существует
             if (user.ErrorType.HasValue)
@@ -117,10 +117,10 @@ namespace Services
         /// Получить список пользователей в чате
         /// </summary>
         /// <param name="chatId"></param>
-        public async Task<ResultContainer<ICollection<UserDto>>> GetUsersInChat(int chatId)
+        public async Task<ResultContainer<ICollection<UserDto>>> GetUsersByChatId(int chatId)
         {
             var result = new ResultContainer<ICollection<UserDto>>();
-            var chat = await _chatService.FindByIdAsync(chatId);
+            var chat = await _chatService.GetById(chatId);
             
             // Если чат не существует
             if (chat.ErrorType.HasValue)
@@ -129,7 +129,7 @@ namespace Services
                 return result;
             }
 
-            var users = await _userChatRepository.GetUsersInChat(chatId);
+            var users = await _userChatRepository.GetUsersByChatId(chatId);
 
             result = _mapper.Map<ResultContainer<ICollection<UserDto>>>(users);
             return result;

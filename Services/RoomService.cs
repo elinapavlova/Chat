@@ -30,9 +30,9 @@ namespace Services
             _userService = userService;
         }
 
-        public async Task<ResultContainer<RoomDto>> CreateRoomAsync(RoomDto roomDto)
+        public async Task<ResultContainer<RoomDto>> Create(RoomDto roomDto)
         {
-            var user = await _userService.FindByIdAsync(roomDto.UserId);
+            var user = await _userService.GetById(roomDto.UserId);
             var room = await _roomRepository.GetById(roomDto.Id);
             var result = new ResultContainer<RoomDto>();
             
@@ -57,7 +57,7 @@ namespace Services
             return result;
         }
 
-        public async Task<ResultContainer<ICollection<RoomDto>>> FindByNameAsync(string title, int page, int pageSize)
+        public async Task<ResultContainer<ICollection<RoomDto>>> GetByName(string title, int page, int pageSize)
         {
             var filter = new BaseFilterDto
             {
@@ -65,7 +65,7 @@ namespace Services
             };
             
             var result = _mapper.Map<ResultContainer<ICollection<RoomDto>>>
-                (await _roomRepository.FindByNameAsync(title, filter));
+                (await _roomRepository.GetByName(title, filter));
             
             if (result.Data.Count != 0)
                 return result;
@@ -74,7 +74,7 @@ namespace Services
             return result;
         }
 
-        public async Task<ResultContainer<ICollection<RoomDto>>> GetPageAsync
+        public async Task<ResultContainer<ICollection<RoomDto>>> GetPage
             (int page, int pageSize, string columnName, bool isDescending)
         {
             var filter = new BaseFilterDto
@@ -92,7 +92,7 @@ namespace Services
             return result;
         }
 
-        public async Task<ResultContainer<RoomDto>> FindByIdAsync(int id)
+        public async Task<ResultContainer<RoomDto>> GetById(int id)
         {
             var result = new ResultContainer<RoomDto>();
             var room = await _roomRepository.GetById(id);
@@ -107,7 +107,7 @@ namespace Services
             return result;
         }
 
-        public async Task<ResultContainer<RoomResponseDto>> GetByIdWithChatsAsync(int id, int page, int pageSize)
+        public async Task<ResultContainer<RoomResponseDto>> GetByIdWithChats(int id, int page, int pageSize)
         {
             var result = new ResultContainer<RoomResponseDto>();
 
@@ -116,7 +116,7 @@ namespace Services
                 Paging = new FilterPagingDto { PageNumber = page, PageSize = pageSize }
             };
 
-            var room = await _roomRepository.GetByIdWithChatsAsync(id, filter);
+            var room = await _roomRepository.GetByIdWithChats(id, filter);
             
             // Если комната не найдена или на данной странице нет чатов
             if (room == null || room.Chats == null && page > 1)

@@ -19,7 +19,7 @@ namespace Infrastructure.Repository
             _context = context;
         }
 
-        public async Task<ICollection<Message>> GetByChatIdAsync(int chatId, BaseFilter filter)
+        public async Task<ICollection<Message>> GetByChatId(int chatId, BaseFilter filter)
         {
             var messagesInChat = _context.Messages
                 .Where(m => m.ChatId == chatId);

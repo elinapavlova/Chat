@@ -8,6 +8,6 @@ namespace Services.Contracts
     public interface IAuthenticationService
     {
         Task<ResultContainer<AccessTokenDto>> Login(UserCredentialsDto data);
-        Task<ResultContainer<AccessTokenDto>> RefreshTokenAsync(string refreshToken, string userEmail);
+        Task<ResultContainer<AccessTokenDto>> RefreshToken(string refreshToken, string userEmail);
     }
 }
