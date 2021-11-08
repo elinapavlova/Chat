@@ -28,11 +28,13 @@ namespace ChatAPI.Controllers
         /// </summary>
         /// <param name="chat"></param>
         /// <response code="200">Return the chat</response>
-        /// <response code="400">If the chat already exists or room doesn't exist</response>
+        /// <response code="400">If the chat already exists</response>
+        /// <response code="404">If the user or room doesn't exist</response>
         /// <response code="401">If the User wasn't authorized</response>
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<ChatDto>> CreateChatAsync(ChatDto chat)
             => await ReturnResult<ResultContainer<ChatDto>, ChatDto>(_chatService.CreateChatAsync(chat));

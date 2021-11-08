@@ -40,8 +40,15 @@ namespace Services
             var chat = await _chatRepository.GetById(chatDto.Id);
             var result = new ResultContainer<ChatDto>();
             
-            // Если комната/пользователь не существует или чат уже существует
-            if (room.ErrorType.HasValue || user.ErrorType.HasValue || chat != null )
+            // Если комната или пользователь не существует
+            if (room.ErrorType.HasValue || user.ErrorType.HasValue)
+            {
+                result.ErrorType = ErrorType.NotFound;
+                return result;
+            }
+            
+            // Если чат уже существует
+            if (chat != null)
             {
                 result.ErrorType = ErrorType.BadRequest;
                 return result;
