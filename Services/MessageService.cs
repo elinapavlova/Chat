@@ -67,11 +67,15 @@ namespace Services
         
         public async Task<ResultContainer<MessageResponseDto>> CreateMessageAsync(MessageRequestDto messageDto)
         {
-            var resultMessage = await ValidateMessage(messageDto);
+            var resultMessage = await CheckUserInChat(messageDto);
             var resultUpload = new ResultContainer<UploadResponseDto>();
             
-            // Если сообщение невалидное или пользователь не состоит в чате
+            // Если пользователь не состоит в чате
             if (resultMessage.ErrorType.HasValue)
+                return resultMessage;
+
+            // Если пользователь не отправил файлов и нет текста сообщения
+            if (messageDto.Text == null && messageDto.Files == null)
                 return resultMessage;
             
             var message = _mapper.Map<Message>(messageDto);
@@ -89,7 +93,6 @@ namespace Services
             if (resultUpload.Data != null)
                 resultMessage.Data.Images = resultUpload.Data.Images;
             
-            // Если при загрузке произошла ошибка
             if (resultUpload.ErrorType.HasValue)
                 resultMessage.ErrorType = ErrorType.BadRequest;
             else
@@ -98,17 +101,16 @@ namespace Services
             return resultMessage;
         }
 
-        private async Task<ResultContainer<MessageResponseDto>> ValidateMessage(MessageRequestDto messageDto)
+        private async Task<ResultContainer<MessageResponseDto>> CheckUserInChat(MessageRequestDto messageDto)
         {
             var result = new ResultContainer<MessageResponseDto>();
             var userInChat = 
                 await _userChatService.CheckUserInChat(messageDto.UserId, messageDto.ChatId);
-
-            // Если пользователь состоит в чате и сообщение валидное
-            if (!userInChat.ErrorType.HasValue && messageDto.Files == null && messageDto.Text == null) 
+            
+            if (!userInChat.ErrorType.HasValue) 
                 return result;
             
-            result.ErrorType = ErrorType.BadRequest;
+            result.ErrorType = ErrorType.NotFound;
             return result;
         }
     }
