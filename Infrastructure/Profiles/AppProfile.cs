@@ -139,6 +139,10 @@ namespace Infrastructure.Profiles
             CreateMap<ICollection<Chat>, ResultContainer<ICollection<ChatDto>>>()
                 .ForMember("Data", opt =>
                     opt.MapFrom(c => c));
+            
+            CreateMap<int, ResultContainer<int>>()
+                .ForMember("Data", opt =>
+                    opt.MapFrom(c => c));
         }
     }
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
 using Infrastructure.Contracts;
-using Infrastructure.Options;
+using Infrastructure.Filter;
 using Infrastructure.Result;
 using Models;
 using Models.Dtos.Chat;
@@ -22,7 +22,6 @@ namespace Services
         private readonly IUserService _userService;
         private readonly IChatService _chatService;
         private readonly IRoomService _roomService;
-        private readonly PagingOptions _pagingOptions;
 
         public UserChatService
         (
@@ -31,8 +30,7 @@ namespace Services
             IUserService userService,
             IChatService chatService,
             IUserRoomService userRoomService,
-            IRoomService roomService,
-            PagingOptions pagingOptions
+            IRoomService roomService
         )
         {
             _userChatRepository = userChatRepository;
@@ -41,14 +39,12 @@ namespace Services
             _chatService = chatService;
             _userRoomService = userRoomService;
             _roomService = roomService;
-            _pagingOptions = pagingOptions;
         }
         
         /// <summary>
         /// Добавить пользователя в чат
         /// </summary>
         /// <param name="userChatDto"></param>
-        /// <returns></returns>
         public async Task<ResultContainer<UserChatDto>> CreateUserChatAsync(UserChatDto userChatDto)
         {
             var chat = await _chatService.FindByIdAsync(userChatDto.ChatId);
@@ -57,7 +53,7 @@ namespace Services
             // Если чат не существует
             if (chat.ErrorType.HasValue)
             {
-                result.ErrorType = ErrorType.BadRequest;
+                result.ErrorType = ErrorType.NotFound;
                 return result;
             }
             
@@ -69,7 +65,7 @@ namespace Services
             // Если пользователь уже состоит в чате или не состоит в комнате
             if (userInChat.Data != null || userInRoom.ErrorType.HasValue)
             {
-                result.ErrorType = ErrorType.BadRequest;
+                result.ErrorType = ErrorType.NotFound;
                 return result;
             }
 
@@ -87,25 +83,26 @@ namespace Services
         /// <param name="userId"></param>
         /// <param name="page"></param>
         /// <param name="pageSize"></param>
-        /// <returns></returns>
         public async Task<ResultContainer<ICollection<ChatDto>>> GetChatsUserIn(int userId, int page, int pageSize)
         {
             var result = new ResultContainer<ICollection<ChatDto>>();
             var user = await _userService.FindByIdAsync(userId);
             
+            // Если пользователь не существует
             if (user.ErrorType.HasValue)
             {
-                result.ErrorType = ErrorType.BadRequest;
+                result.ErrorType = ErrorType.NotFound;
                 return result;
             }
             
-            if (page < 1)
-                page = _pagingOptions.DefaultPageNumber;
-            
-            if (pageSize < 1)
-                pageSize = _pagingOptions.DefaultPageSize;
+            var filter = new BaseFilterDto
+            {
+                Paging = new FilterPagingDto {PageNumber = page, PageSize = pageSize}
+            };
 
-            var chats = await _userChatRepository.GetChatsByUserId(userId, page, pageSize);
+            var chats = await _userChatRepository.GetChatsByUserId(userId, filter);
+            
+            // Если на странице нет чатов
             if (chats.Count == 0 && page > 1)
             {
                 result.ErrorType = ErrorType.NotFound;
@@ -120,12 +117,12 @@ namespace Services
         /// Получить список пользователей в чате
         /// </summary>
         /// <param name="chatId"></param>
-        /// <returns></returns>
         public async Task<ResultContainer<ICollection<UserDto>>> GetUsersInChat(int chatId)
         {
             var result = new ResultContainer<ICollection<UserDto>>();
             var chat = await _chatService.FindByIdAsync(chatId);
             
+            // Если чат не существует
             if (chat.ErrorType.HasValue)
             {
                 result.ErrorType = ErrorType.NotFound;
@@ -143,18 +140,18 @@ namespace Services
         /// </summary>
         /// <param name="userId"></param>
         /// <param name="chatId"></param>
-        /// <returns></returns>
         public async Task<ResultContainer<UserChatDto>> CheckUserInChat(int userId, int chatId)
         {
             var result = new ResultContainer<UserChatDto>();
             var userChat = await _userChatRepository.CheckUserInChat(userId, chatId);
             
+            // Если пользователь не состоит в чате
             if (userChat == null)
             {
                 result.ErrorType = ErrorType.NotFound;
                 return result;
             }
-
+            
             result = _mapper.Map<ResultContainer<UserChatDto>>(userChat);
             return result;
         }
@@ -162,19 +159,16 @@ namespace Services
         /// <summary>
         /// Выйти из чата
         /// </summary>
-        /// <returns></returns>
         public async Task<ResultContainer<UserChatResponseDto>> ComeOutOfChat(int userId, int chatId)
         {
-            var result = new ResultContainer<UserChatResponseDto>();
-            var userChat = await _userChatRepository.ComeOutOfChat(userId, chatId);
+            var result = _mapper.Map<ResultContainer<UserChatResponseDto>>
+                (await _userChatRepository.ComeOutOfChat(userId, chatId));
             
-            if (userChat == null)
-            {
-                result.ErrorType = ErrorType.BadRequest;
+            // Если пользователь состоит в чате
+            if (result.Data != null)
                 return result;
-            }
 
-            result = _mapper.Map<ResultContainer<UserChatResponseDto>>(userChat);
+            result.ErrorType = ErrorType.NotFound;
             return result;
         }
     }

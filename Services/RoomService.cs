@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Infrastructure.Contracts;
 using Infrastructure.Filter;
-using Infrastructure.Options;
 using Infrastructure.Result;
 using Models;
 using Models.Dtos.Room;
@@ -15,29 +14,26 @@ namespace Services
 {
     public class RoomService : IRoomService
     {
-        private readonly IRoomRepository _repository;
+        private readonly IRoomRepository _roomRepository;
         private readonly IMapper _mapper;
         private readonly IUserService _userService;
-        private readonly PagingOptions _pagingOptions;
 
         public RoomService
         (
-            IRoomRepository repository, 
+            IRoomRepository roomRepository, 
             IMapper mapper, 
-            IUserService userService,
-            PagingOptions pagingOptions
+            IUserService userService
         )
         {
-            _repository = repository;
+            _roomRepository = roomRepository;
             _mapper = mapper;
             _userService = userService;
-            _pagingOptions = pagingOptions;
         }
 
         public async Task<ResultContainer<RoomDto>> CreateRoomAsync(RoomDto roomDto)
         {
             var user = await _userService.FindByIdAsync(roomDto.UserId);
-            var room = await _repository.GetById(roomDto.Id);
+            var room = await _roomRepository.GetById(roomDto.Id);
             var result = new ResultContainer<RoomDto>();
             
             if (user.ErrorType.HasValue || room != null)
@@ -49,44 +45,38 @@ namespace Services
             var newRoom = _mapper.Map<RoomDto, Room>(roomDto);
             newRoom.DateCreated = DateTime.Now;
             
-            result = _mapper.Map<ResultContainer<RoomDto>>(await _repository.Create(newRoom));
+            result = _mapper.Map<ResultContainer<RoomDto>>(await _roomRepository.Create(newRoom));
             return result;
         }
 
         public async Task<ResultContainer<ICollection<RoomDto>>> FindByNameAsync(string title, int page, int pageSize)
         {
-            var result = new ResultContainer<ICollection<RoomDto>>();
-            
-            if (page < 1)
-                page = _pagingOptions.DefaultPageNumber;
-            
-            var rooms = await _repository.FindByNameAsync(title, page, pageSize);
-            if (rooms.Count == 0)
+            var filter = new BaseFilterDto
             {
-                result.ErrorType = ErrorType.NotFound;
-                return result;
-            }
+                Paging = new FilterPagingDto { PageNumber = page, PageSize = pageSize }
+            };
             
-            result = _mapper.Map<ResultContainer<ICollection<RoomDto>>>(rooms);
+            var result = _mapper.Map<ResultContainer<ICollection<RoomDto>>>
+                (await _roomRepository.FindByNameAsync(title, filter));
+            
+            if (result.Data.Count != 0)
+                return result;
+
+            result.ErrorType = ErrorType.NotFound;
             return result;
         }
 
         public async Task<ResultContainer<ICollection<RoomDto>>> GetPageAsync
             (int page, int pageSize, string columnName, bool isDescending)
         {
-            if (page < 1)
-                page = _pagingOptions.DefaultPageNumber;
-            
-            if (pageSize < 1)
-                pageSize = _pagingOptions.DefaultPageSize;
-            
             var filter = new BaseFilterDto
             {
                 Paging = new FilterPagingDto {PageNumber = page, PageSize = pageSize},
                 Sort = new FilterSortDto {ColumnName = columnName, IsDescending = isDescending}
             };
             
-            var result = _mapper.Map<ResultContainer<ICollection<RoomDto>>>(await _repository.GetFiltered(filter));
+            var result = _mapper.Map<ResultContainer<ICollection<RoomDto>>>(await _roomRepository.GetFiltered(filter));
+            
             if (result.Data.Count != 0) 
                 return result;
             
@@ -97,29 +87,31 @@ namespace Services
         public async Task<ResultContainer<RoomDto>> FindByIdAsync(int id)
         {
             var result = new ResultContainer<RoomDto>();
-            var room = await _repository.GetById(id);
+            var room = await _roomRepository.GetById(id);
 
-            if (room == null)
+            if (room != null)
             {
-                result.ErrorType = ErrorType.NotFound;
+                result = _mapper.Map<ResultContainer<RoomDto>>(room);
                 return result;
             }
-
-            result = _mapper.Map<ResultContainer<RoomDto>>(room);
+            
+            result.ErrorType = ErrorType.NotFound;
             return result;
         }
 
         public async Task<ResultContainer<RoomResponseDto>> GetByIdWithChatsAsync(int id, int page, int pageSize)
         {
             var result = new ResultContainer<RoomResponseDto>();
-            
-            if (page < 1)
-                page = _pagingOptions.DefaultPageNumber;
 
-            var room = await _repository.GetByIdWithChatsAsync(id, page, pageSize);
+            var filter = new BaseFilterDto
+            {
+                Paging = new FilterPagingDto { PageNumber = page, PageSize = pageSize }
+            };
+
+            var room = await _roomRepository.GetByIdWithChatsAsync(id, filter);
             
             // Если комната не найдена или на данной странице нет чатов
-            if (room == null || room.Chats.Count == 0 && page > 1)
+            if (room == null || room.Chats == null && page > 1)
             {
                 result.ErrorType = ErrorType.NotFound;
                 return result;

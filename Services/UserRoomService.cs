@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
 using Infrastructure.Contracts;
-using Infrastructure.Options;
+using Infrastructure.Filter;
 using Infrastructure.Result;
 using Models;
 using Models.Dtos.Room;
@@ -20,22 +20,19 @@ namespace Services
         private readonly IMapper _mapper;
         private readonly IUserService _userService;
         private readonly IRoomService _roomService;
-        private readonly PagingOptions _pagingOptions;
 
         public UserRoomService
         (
             IUserRoomRepository userRoomRepository,
             IMapper mapper,
             IUserService userService,
-            IRoomService roomService,
-            PagingOptions pagingOptions
+            IRoomService roomService
         )
         {
             _userRoomRepository = userRoomRepository;
             _mapper = mapper;
             _userService = userService;
             _roomService = roomService;
-            _pagingOptions = pagingOptions;
         }
         
         /// <summary>
@@ -51,7 +48,7 @@ namespace Services
             // Если пользователя/комнаты не существует или пользователь уже состоит в комнате
             if (userInRoom.Data != null)
             {
-                result.ErrorType = ErrorType.BadRequest;
+                result.ErrorType = ErrorType.NotFound;
                 return result;
             }
 
@@ -75,19 +72,21 @@ namespace Services
             var result = new ResultContainer<ICollection<RoomDto>>();
             var user = await _userService.FindByIdAsync(userId);
             
+            // Если пользователь не существует
             if (user.ErrorType.HasValue)
             {
-                result.ErrorType = ErrorType.BadRequest;
+                result.ErrorType = ErrorType.NotFound;
                 return result;
             }
             
-            if (page < 1)
-                page = _pagingOptions.DefaultPageNumber;
+            var filter = new BaseFilterDto
+            {
+                Paging = new FilterPagingDto {PageNumber = page, PageSize = pageSize}
+            };
             
-            if (pageSize < 1)
-                pageSize = _pagingOptions.DefaultPageSize;
+            var rooms = await _userRoomRepository.GetRoomsByUserId(userId, filter);
             
-            var rooms = await _userRoomRepository.GetRoomsByUserId(userId, page, pageSize);
+            // Если на странице нет комнат
             if (rooms.Count == 0 && page > 1)
             {
                 result.ErrorType = ErrorType.NotFound;
@@ -108,6 +107,7 @@ namespace Services
             var result = new ResultContainer<ICollection<UserDto>>();
             var room = await _roomService.FindByIdAsync(roomId);
             
+            // Если комната не существует
             if (room.ErrorType.HasValue)
             {
                 result.ErrorType = ErrorType.NotFound;
@@ -131,6 +131,7 @@ namespace Services
             var result = new ResultContainer<UserRoomDto>();
             var userRoom = await _userRoomRepository.CheckUserInRoom(userId, roomId);
             
+            // Если пользователь не состоит в комнате
             if (userRoom == null)
             {
                 result.ErrorType = ErrorType.NotFound;
@@ -147,16 +148,14 @@ namespace Services
         /// <returns></returns>
         public async Task<ResultContainer<UserRoomResponseDto>> ComeOutOfRoom(int userId, int roomId)
         {
-            var result = new ResultContainer<UserRoomResponseDto>();
-            var userRoom = await _userRoomRepository.ComeOutOfRoom(userId, roomId);
-            
-            if (userRoom == null)
-            {
-                result.ErrorType = ErrorType.BadRequest;
-                return result;
-            }
+            var result = _mapper.Map<ResultContainer<UserRoomResponseDto>>
+                (await _userRoomRepository.ComeOutOfRoom(userId, roomId));
 
-            result = _mapper.Map<ResultContainer<UserRoomResponseDto>>(userRoom);
+            // Если пользователь состоит в комнате
+            if (result.Data != null)
+                return result;
+
+            result.ErrorType = ErrorType.NotFound;
             return result;
         }
     }

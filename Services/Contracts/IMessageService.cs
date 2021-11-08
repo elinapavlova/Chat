@@ -8,5 +8,6 @@ namespace Services.Contracts
     {
         Task<ResultContainer<MessageResponseDto>> CreateMessageAsync(MessageRequestDto message);
         Task<ResultContainer<MessageResponseDto>> FindByIdAsync(int id);
+        Task<ResultContainer<int?>> CountMessagesInChatAsync(int chatId);
     }
 }

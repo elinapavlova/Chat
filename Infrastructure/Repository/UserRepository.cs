@@ -2,6 +2,7 @@
 using Database;
 using Infrastructure.Contracts;
 using Infrastructure.Filter;
+using Infrastructure.Options;
 using Infrastructure.Repository.Base;
 using Microsoft.EntityFrameworkCore;
 using Models;
@@ -12,7 +13,7 @@ namespace Infrastructure.Repository
     {
         private readonly AppDbContext _context;
 
-        public UserRepository(AppDbContext context) : base(context)
+        public UserRepository(AppDbContext context, PagingOptions options) : base(context, options)
         {
             _context = context;
         }

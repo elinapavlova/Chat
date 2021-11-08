@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Database;
 using Infrastructure.Contracts;
 using Infrastructure.Filter;
+using Infrastructure.Options;
 using Infrastructure.Repository.Base;
 using Microsoft.EntityFrameworkCore;
 using Models;
@@ -15,25 +16,23 @@ namespace Infrastructure.Repository
     {
         private readonly AppDbContext _context;
 
-        public UserChatRepository(AppDbContext context) : base(context)
+        public UserChatRepository(AppDbContext context, PagingOptions options) : base(context, options)
         {
             _context = context;
         }
 
-        public async Task<List<Chat>> GetChatsByUserId(int userId, int page, int pageSize)
+        public async Task<List<Chat>> GetChatsByUserId(int userId, BaseFilterDto filter)
         {
             var chats = new List<Chat>();
-            var chatsUserIn = await _context.UsersChats
-                .Where(ur => ur.UserId == userId && ur.DateComeOut == null)
-                .OrderByDescending(ur => ur.Id)
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
+            var chatsUserIn = _context.UsersChats
+                .Where(ur => ur.UserId == userId && ur.DateComeOut == null);
 
-            foreach (var room in chatsUserIn)
+            var filteredUsersChats = await GetFilteredSource(chatsUserIn, filter);
+
+            foreach (var userChat in filteredUsersChats)
             {
-                room.Chat = await _context.Chats.FirstOrDefaultAsync(r => r.Id == room.ChatId);
-                chats.Add(room.Chat);
+                userChat.Chat = await _context.Chats.FirstOrDefaultAsync(r => r.Id == userChat.ChatId);
+                chats.Add(userChat.Chat);
             }
 
             return chats;

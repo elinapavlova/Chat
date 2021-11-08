@@ -6,9 +6,11 @@ using Models;
 
 namespace Infrastructure.Contracts
 {
-    public interface IChatRepository : IBaseRepository<Chat, BaseFilter>
+    public interface IChatRepository : IBaseRepository<Chat>
     {
-        Task<Chat> GetByIdWithMessagesAsync(int id, int page, int pageSize);
-        Task<ICollection<Chat>> FindByNameAsync(string name, int page, int pageSize);
+        Task<Chat> GetByIdWithMessagesAsync(int id, BaseFilterDto filter);
+        Task<ICollection<Chat>> FindByNameAsync(string name, BaseFilterDto filter);
+        Task<ICollection<Chat>> GetByRoomIdAsync(int roomId, BaseFilterDto filter);
+        Task<int?> Count(int roomId);
     }
 }

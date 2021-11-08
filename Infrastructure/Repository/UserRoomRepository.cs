@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Database;
 using Infrastructure.Contracts;
 using Infrastructure.Filter;
+using Infrastructure.Options;
 using Infrastructure.Repository.Base;
 using Microsoft.EntityFrameworkCore;
 using Models;
@@ -15,22 +16,20 @@ namespace Infrastructure.Repository
     {
         private readonly AppDbContext _context;
 
-        public UserRoomRepository(AppDbContext context) : base(context)
+        public UserRoomRepository(AppDbContext context, PagingOptions options) : base(context, options)
         {
             _context = context;
         }
 
-        public async Task<List<Room>> GetRoomsByUserId(int userId, int page, int pageSize)
+        public async Task<List<Room>> GetRoomsByUserId(int userId, BaseFilterDto filter)
         {
             var rooms = new List<Room>();
-            var roomsUserIn = await _context.UsersRooms
-                .Where(ur => ur.UserId == userId && ur.DateComeOut == null)
-                .OrderByDescending(ur => ur.Id)
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
+            var roomsUserIn = _context.UsersRooms
+                .Where(ur => ur.UserId == userId && ur.DateComeOut == null);
+            
+            var filteredUsersRooms = await GetFilteredSource(roomsUserIn, filter);
 
-            foreach (var room in roomsUserIn)
+            foreach (var room in filteredUsersRooms)
             {
                 room.Room = await _context.Rooms.FirstOrDefaultAsync(r => r.Id == room.RoomId);
                 rooms.Add(room.Room);

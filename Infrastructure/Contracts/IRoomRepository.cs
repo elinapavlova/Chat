@@ -6,9 +6,10 @@ using Models;
 
 namespace Infrastructure.Contracts
 {
-    public interface IRoomRepository : IBaseRepository<Room, BaseFilter>
+    public interface IRoomRepository : IBaseRepository<Room>
     {
-        Task<Room> GetByIdWithChatsAsync(int id, int page, int pageSize);
-        Task<ICollection<Room>> FindByNameAsync(string name, int page, int pageSize);
+        Task<Room> GetByIdWithChatsAsync(int id, BaseFilterDto filter);
+        Task<ICollection<Room>> FindByNameAsync(string name, BaseFilterDto filter);
+        Task<ICollection<Room>> GetFiltered(BaseFilterDto filter);
     }
 }

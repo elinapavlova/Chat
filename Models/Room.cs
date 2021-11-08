@@ -9,7 +9,7 @@ namespace Models
         public int UserId { get; set; }
         
         public User User { get; set; }
-        public List<Chat> Chats { get; set; }
+        public ICollection<Chat> Chats { get; set; }
         
         public List<UserRoom> UsersRooms { get; set; }
     }

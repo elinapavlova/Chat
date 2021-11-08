@@ -35,14 +35,12 @@ namespace ChatAPI.Controllers
         /// <param name="page"></param>
         /// <param name="pageSize"></param>
         /// <response code="200">Return chats which user in</response>
-        /// <response code="404">If there are not chats at this page</response>
+        /// <response code="404">If there are not chats at this page or the user doesn't exist</response>
         /// <response code="401">If the User wasn't authorized</response>
-        /// <response code="400">If the user doesn't exist</response>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<ResultContainer<ICollection<ChatDto>>>> GetChatsUserIn
             (int userId, int page, int pageSize)
             => await ReturnResult<ResultContainer<ICollection<ChatDto>>, ICollection<ChatDto>>
@@ -53,11 +51,11 @@ namespace ChatAPI.Controllers
         /// </summary>
         /// <param name="userChatDto"></param>
         /// <response code="200">Return user id and chat id</response>
-        /// <response code="400">If the chat doesn't exist or user is in chat or user is not in room</response>
+        /// <response code="404">If the chat doesn't exist or user is in chat or user is not in room</response>
         /// <response code="401">If the User wasn't authorized</response>
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<UserChatDto>> ComeIn(UserChatDto userChatDto)
             => await ReturnResult<ResultContainer<UserChatDto>, UserChatDto>
@@ -69,11 +67,11 @@ namespace ChatAPI.Controllers
         /// <param name="userId"></param>
         /// <param name="chatId"></param>
         /// <response code="200">Return user id, chat id and exit date</response>
-        /// <response code="400">If the user is in chat</response>
+        /// <response code="404">If the user is not in chat</response>
         /// <response code="401">If the User wasn't authorized</response>
         [HttpPost("{userId:int}/{chatId:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<UserChatResponseDto>> ComeOut(int userId, int chatId)
             => await ReturnResult<ResultContainer<UserChatResponseDto>, UserChatResponseDto>

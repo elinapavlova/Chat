@@ -1,16 +1,12 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using Infrastructure.Filter;
+﻿using System.Threading.Tasks;
 using Models.Base;
 
 namespace Infrastructure.Contracts.Base
 {
-    public interface IBaseRepository<TModel, in TFilter> 
+    public interface IBaseRepository<TModel> 
         where TModel : BaseModel
-        where TFilter : BaseFilter
     {
         Task<TModel> Create(TModel data);
         Task<TModel> GetById(int id);
-        Task<ICollection<TModel>> GetFiltered(TFilter filter);
     }
 }

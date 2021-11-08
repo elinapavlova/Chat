@@ -1,11 +1,10 @@
 ﻿using System.Threading.Tasks;
 using Infrastructure.Contracts.Base;
-using Infrastructure.Filter;
 using Models;
 
 namespace Infrastructure.Contracts
 {
-    public interface IUserRepository : IBaseRepository<User, BaseFilter>
+    public interface IUserRepository : IBaseRepository<User>
     {
         Task<User> FindByEmailAsync(string email);
     }

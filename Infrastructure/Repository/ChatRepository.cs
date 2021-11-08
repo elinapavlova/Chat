@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Database;
 using Infrastructure.Contracts;
 using Infrastructure.Filter;
+using Infrastructure.Options;
 using Infrastructure.Repository.Base;
 using Microsoft.EntityFrameworkCore;
 using Models;
@@ -13,54 +14,59 @@ namespace Infrastructure.Repository
     public class ChatRepository : BaseRepository<Chat, BaseFilter>, IChatRepository
     {
         private readonly AppDbContext _context;
+        private readonly IMessageRepository _messageRepository;
         
-        public ChatRepository(AppDbContext context) : base(context)
+        public ChatRepository(AppDbContext context, PagingOptions options, IMessageRepository messageRepository) 
+            : base(context, options)
         {
             _context = context;
+            _messageRepository = messageRepository;
         }
         
-        public async Task<Chat> GetByIdWithMessagesAsync(int id, int page, int pageSize)
+        public async Task<Chat> GetByIdWithMessagesAsync(int id, BaseFilterDto filter)
         {
-            var chat = await _context.Chats.SingleOrDefaultAsync(u => u.Id == id);
-
+            var chat = await _context.Chats.FirstOrDefaultAsync(u => u.Id == id);
             if (chat == null)
                 return null;
-            
-            var messages = await _context.Messages
-                .Where(m => m.ChatId == chat.Id)
-                .OrderByDescending(m => m.Id)
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
 
+            var messages = await _messageRepository.GetByChatIdAsync(id, filter);
             if (messages.Count == 0)
                 return chat;
 
-            foreach (var message in messages)
-                message.Images = await GetImagesForMessage(message.Id);
-            
             chat.Messages = messages;
             return chat;
         }
 
-        public async Task<ICollection<Chat>> FindByNameAsync(string title, int page, int pageSize)
+        public async Task<ICollection<Chat>> FindByNameAsync(string title, BaseFilterDto filter)
         {
-            var chats = await _context.Chats
-                .Where(r => r.Title.Contains(title))
-                .OrderByDescending(r => r.DateCreated)
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .ToListAsync();
-            return chats;
+            var chats = _context.Chats.Where(r => r.Title.Contains(title));
+            var filteredChats = await GetFilteredSource(chats, filter);
+            
+            return filteredChats;
         }
 
-        private async Task<List<Image>> GetImagesForMessage(int messageId)
+        public async Task<ICollection<Chat>> GetByRoomIdAsync(int roomId, BaseFilterDto filter)
         {
-            var images = await _context.Images
-                .Where(i => i.MessageId == messageId)
-                .OrderByDescending(i => i.Id)
-                .ToListAsync();
-            return images;
+            var chats = _context.Chats.Where(r => r.RoomId == roomId);
+            var filteredChats = await GetFilteredSource(chats, filter);
+            
+            return filteredChats;
+        }
+        
+        public async Task<int?> Count(int roomId)
+        {
+            var room = await _context.Rooms.FirstOrDefaultAsync(r => r.Id == roomId);
+            if (room == null)
+                return null;
+            
+            var chatsInRoom = await _context.Chats.Where(c => c.RoomId == roomId).ToListAsync();
+            var count = chatsInRoom.Count;
+            return count;
+        }
+
+        public Task<int> Count()
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

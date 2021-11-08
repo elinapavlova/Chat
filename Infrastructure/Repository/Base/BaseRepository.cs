@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Database;
 using Infrastructure.Filter;
+using Infrastructure.Options;
 using Microsoft.EntityFrameworkCore;
 using Models.Base;
 
@@ -13,16 +14,21 @@ namespace Infrastructure.Repository.Base
         where TFilter : BaseFilter
     {
         private readonly AppDbContext _context;
+        private readonly PagingOptions _pagingOptions;
 
-        protected BaseRepository(AppDbContext context)
+        protected BaseRepository
+        (
+            AppDbContext context,
+            PagingOptions pagingOptions
+        )
         {
             _context = context;
+            _pagingOptions = pagingOptions;
         }
 
         private IQueryable<TModel> GetDataSet()
             => _context.Set<TModel>().AsNoTracking();
         
-
         public async Task<TModel> GetById(int id)
         {
             var data = await GetDataSet().FirstOrDefaultAsync(u => u.Id == id);
@@ -36,18 +42,21 @@ namespace Infrastructure.Repository.Base
             return data;
         }
 
-        public async Task<ICollection<TModel>> GetFiltered(TFilter filter)
+        protected async Task<ICollection<TModel>> GetFilteredSource(IQueryable<TModel> source, TFilter filter)
         {
-            var result = GetDataSet();
-
-            result = ApplySort(result, filter.Sort);
-            result = ApplyPaging(result, filter.Paging);
+            ApplySort(source, filter.Sort);
+            var result = ApplyPaging(source, filter.Paging);
 
             return await result.ToListAsync();
         }
 
-        private IQueryable<TModel> ApplySort(IQueryable<TModel> source, FilterSortDto sort)
+        protected IQueryable<TModel> ApplySort(IQueryable<TModel> source, FilterSortDto sort)
         {
+            sort ??= new FilterSortDto
+            {
+                ColumnName = nameof(BaseModel.DateCreated),
+                IsDescending = true
+            };
             sort.ColumnName ??= nameof(BaseModel.DateCreated);
             
             return sort.ColumnName switch
@@ -63,8 +72,14 @@ namespace Infrastructure.Repository.Base
             };
         }
 
-        private IQueryable<TModel> ApplyPaging(IQueryable<TModel> source, FilterPagingDto paging)
+        protected IQueryable<TModel> ApplyPaging(IQueryable<TModel> source, FilterPagingDto paging)
         {
+            if (paging.PageSize < 1)
+                paging.PageSize = _pagingOptions.DefaultPageSize;
+            
+            if (paging.PageNumber < 1)
+                paging.PageSize = _pagingOptions.DefaultPageNumber;
+            
             return source
                 .Skip((paging.PageNumber - 1) * paging.PageSize)
                 .Take(paging.PageSize);

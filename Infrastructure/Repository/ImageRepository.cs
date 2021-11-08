@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Database;
 using Infrastructure.Contracts;
 using Infrastructure.Filter;
+using Infrastructure.Options;
 using Infrastructure.Repository.Base;
 using Microsoft.EntityFrameworkCore;
 using Models;
@@ -13,7 +14,7 @@ namespace Infrastructure.Repository
     public class ImageRepository : BaseRepository<Image, BaseFilter>, IImageRepository
     {
         private readonly AppDbContext _context;
-        public ImageRepository(AppDbContext context) : base(context)
+        public ImageRepository(AppDbContext context, PagingOptions options) : base(context, options)
         {
             _context = context;
         }

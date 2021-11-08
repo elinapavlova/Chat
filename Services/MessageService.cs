@@ -40,22 +40,28 @@ namespace Services
 
         public async Task<ResultContainer<MessageResponseDto>> FindByIdAsync(int id)
         {
-            var result = new ResultContainer<MessageResponseDto>();
-            var message = await _messageRepository.GetById(id);
+            var result = _mapper.Map<ResultContainer<MessageResponseDto>>(await _messageRepository.GetById(id));
             
-            if (message == null)
+            if (result.Data == null)
             {
                 result.ErrorType = ErrorType.NotFound;
                 return result;
             }
 
-            result = _mapper.Map<ResultContainer<MessageResponseDto>>(message);
-
-            if (result.ErrorType.HasValue)
-                return result;
-            
             result.Data.Images = _mapper.Map<ICollection<ImageResponseDto>>
                 (await _imageRepository.GetByMessageId(result.Data.Id));
+            return result;
+        }
+        
+        public async Task<ResultContainer<int?>> CountMessagesInChatAsync(int chatId)
+        {
+            var result = _mapper.Map<ResultContainer<int?>>(await _messageRepository.Count(chatId));
+
+            if (result.Data != null)
+                return result;
+
+            // Если чат не найден
+            result.ErrorType = ErrorType.NotFound;
             return result;
         }
         
