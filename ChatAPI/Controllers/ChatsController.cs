@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using ChatAPI.Controllers.Base;
+using Infrastructure.Filter;
 using Infrastructure.Result;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -43,34 +44,32 @@ namespace ChatAPI.Controllers
         /// Get chats list by name
         /// </summary>
         /// <param name="name"></param>
-        /// <param name="page"></param>
-        /// <param name="pageSize"></param>
+        /// <param name="filter"></param>
         /// <response code="200">Return the chat</response>
         /// <response code="404">If the chats don't exist</response>
         /// <response code="401">If the User wasn't authorized</response>
-        [HttpGet("{name}/{page:int}")]
+        [HttpGet("{name}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult<ICollection<ChatDto>>> GetByName(string name, int page, int pageSize)
+        public async Task<ActionResult<ICollection<ChatDto>>> GetByName(string name, [FromQuery] FilterPagingDto filter)
             => await ReturnResult<ResultContainer<ICollection<ChatDto>>, ICollection<ChatDto>>
-                (_chatService.GetByName(name, page, pageSize));
+                (_chatService.GetByName(name, filter));
 
         /// <summary>
         /// Get chat with messages by page
         /// </summary>
         /// <param name="id"></param>
-        /// <param name="page"></param>
-        /// <param name="pageSize"></param>
+        /// <param name="filter"></param>
         /// <response code="200">Return the chat</response>
         /// <response code="404">If the chat doesn't exist or there are not messages at this page</response>
         /// <response code="401">If the User wasn't authorized</response>
-        [HttpGet("{id:int}/{page:int}")]
+        [HttpGet("{id:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<ActionResult<ChatResponseDto>> GetByIdWithMessages(int id, int page, int pageSize)
+        public async Task<ActionResult<ChatResponseDto>> GetByIdWithMessages(int id, [FromQuery] FilterPagingDto filter)
             => await ReturnResult<ResultContainer<ChatResponseDto>, ChatResponseDto>
-                (_chatService.GetByIdWithMessages(id, page, pageSize));
+                (_chatService.GetByIdWithMessages(id,filter));
     }
 }

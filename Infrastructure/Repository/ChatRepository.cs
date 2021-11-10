@@ -16,19 +16,29 @@ namespace Infrastructure.Repository
         private readonly AppDbContext _context;
         private readonly IMessageRepository _messageRepository;
         
-        public ChatRepository(AppDbContext context, PagingOptions options, IMessageRepository messageRepository) 
+        public ChatRepository
+        (
+            AppDbContext context, 
+            PagingOptions options, 
+            IMessageRepository messageRepository
+        ) 
             : base(context, options)
         {
             _context = context;
             _messageRepository = messageRepository;
         }
         
-        public async Task<Chat> GetByIdWithMessages(int id, BaseFilterDto filter)
+        public async Task<Chat> GetByIdWithMessages(int id, int page, int pageSize)
         {
             var chat = await _context.Chats.FirstOrDefaultAsync(u => u.Id == id);
             if (chat == null)
                 return null;
 
+            var filter = new BaseFilter
+            {
+                Paging = new FilterPagingDto {PageNumber = page, PageSize = pageSize}
+            };
+            
             var messages = await _messageRepository.GetByChatId(id, filter);
             if (messages.Count == 0)
                 return chat;
@@ -37,9 +47,15 @@ namespace Infrastructure.Repository
             return chat;
         }
 
-        public async Task<ICollection<Chat>> GetByName(string title, BaseFilterDto filter)
+        public async Task<ICollection<Chat>> GetByName(string title, int page, int pageSize)
         {
             var chats = _context.Chats.Where(r => r.Title.Contains(title));
+            
+            var filter = new BaseFilter
+            {
+                Paging = new FilterPagingDto {PageNumber = page, PageSize = pageSize}
+            };
+            
             var filteredChats = await GetFilteredSource(chats, filter);
             
             return filteredChats;
@@ -47,8 +63,7 @@ namespace Infrastructure.Repository
 
         public async Task<ICollection<Chat>> GetByRoomId(int roomId, int page, int pageSize)
         {
-            var chats = _context.Chats
-                .Where(r => r.RoomId == roomId);
+            var chats = _context.Chats.Where(r => r.RoomId == roomId);
 
             var filter = new BaseFilter
             {
@@ -66,8 +81,12 @@ namespace Infrastructure.Repository
             if (room == null)
                 return null;
             
-            var chatsInRoom = await _context.Chats.Where(c => c.RoomId == roomId).ToListAsync();
+            var chatsInRoom = await _context.Chats
+                .Where(c => c.RoomId == roomId)
+                .ToListAsync();
+            
             var count = chatsInRoom.Count;
+            
             return count;
         }
     }

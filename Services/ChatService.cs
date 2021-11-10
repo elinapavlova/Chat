@@ -61,20 +61,18 @@ namespace Services
             return result;
         }
 
-        public async Task<ResultContainer<ICollection<ChatDto>>> GetByName(string title, int page, int pageSize)
+        public async Task<ResultContainer<ICollection<ChatDto>>> GetByName(string title, FilterPagingDto filter)
         {
-            var filter = new BaseFilterDto
+            var result = new ResultContainer<ICollection<ChatDto>>();
+            var chats = await _chatRepository.GetByName(title, filter.PageNumber, filter.PageSize);
+            
+            if (chats.Count == 0)
             {
-                Paging = new FilterPagingDto {PageNumber = page, PageSize = pageSize}
-            };
-            
-            var result = _mapper.Map<ResultContainer<ICollection<ChatDto>>>
-                (await _chatRepository.GetByName(title, filter));
-            
-            if (result.Data.Count != 0)
+                result.ErrorType = ErrorType.NotFound;
                 return result;
+            }
 
-            result.ErrorType = ErrorType.NotFound;
+            result = _mapper.Map<ResultContainer<ICollection<ChatDto>>>(chats);
             return result;
         }
 
@@ -93,19 +91,13 @@ namespace Services
             return result;
         }
 
-        public async Task<ResultContainer<ChatResponseDto>> GetByIdWithMessages(int id, int page, int pageSize)
+        public async Task<ResultContainer<ChatResponseDto>> GetByIdWithMessages(int id, FilterPagingDto filter)
         {
             var result = new ResultContainer<ChatResponseDto>();
-            
-            var filter = new BaseFilterDto
-            {
-                Paging = new FilterPagingDto {PageNumber = page, PageSize = pageSize}
-            };
-            
-            var chat = await _chatRepository.GetByIdWithMessages(id, filter);
+            var chat = await _chatRepository.GetByIdWithMessages(id, filter.PageNumber, filter.PageSize);
 
             // Если чат не найден или на данной странице нет сообщений
-            if (chat == null || chat.Messages == null && page > 1)
+            if (chat == null || chat.Messages == null && filter.PageNumber > 1)
             {
                 result.ErrorType = ErrorType.NotFound;
                 return result;
