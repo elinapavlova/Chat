@@ -21,12 +21,17 @@ namespace Infrastructure.Repository
             _context = context;
         }
 
-        public async Task<List<Chat>> GetChatsByUserId(int userId, BaseFilterDto filter)
+        public async Task<List<Chat>> GetChatsByUserId(int userId, int page, int pageSize)
         {
             var chats = new List<Chat>();
             var chatsUserIn = _context.UsersChats
                 .Where(ur => ur.UserId == userId && ur.DateComeOut == null);
 
+            var filter = new BaseFilter
+            {
+                Paging = new FilterPagingDto {PageNumber = page, PageSize = pageSize}
+            };
+            
             var filteredUsersChats = await GetFilteredSource(chatsUserIn, filter);
 
             foreach (var userChat in filteredUsersChats)
@@ -38,15 +43,20 @@ namespace Infrastructure.Repository
             return chats;
         }
 
-        public async Task<List<User>> GetUsersByChatId(int chatId)
+        public async Task<List<User>> GetUsersByChatId(int chatId, int page, int pageSize)
         {
             var users = new List<User>();
-            var usersInChat = await _context.UsersChats
-                .Where(ur => ur.ChatId == chatId && ur.DateComeOut == null)
-                .OrderByDescending(ur => ur.Id)
-                .ToListAsync();
+            var usersInChat = _context.UsersChats.Where(ur => ur.ChatId == chatId && ur.DateComeOut == null);
+            
+            var filter = new BaseFilter
+            {
+                Paging = new FilterPagingDto {PageNumber = page, PageSize = pageSize},
+                Sort = new FilterSortDto {ColumnName = "Id", IsDescending = true}
+            };
+            
+            var filteredUsersChats = await GetFilteredSource(usersInChat, filter);
 
-            foreach (var user in usersInChat)
+            foreach (var user in filteredUsersChats)
             {
                 user.User = await _context.Users.FirstOrDefaultAsync(u => u.Id == user.UserId);
                 users.Add(user.User);

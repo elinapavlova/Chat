@@ -49,6 +49,15 @@ namespace Infrastructure.Repository.Base
 
             return await result.ToListAsync();
         }
+        
+        protected async Task<ICollection<TModel>> GetFilteredSource(TFilter filter)
+        {
+            var source = GetDataSet();
+            ApplySort(source, filter.Sort);
+            var result = ApplyPaging(source, filter.Paging);
+
+            return await result.ToListAsync();
+        }
 
         protected IQueryable<TModel> ApplySort(IQueryable<TModel> source, FilterSortDto sort)
         {
@@ -78,7 +87,7 @@ namespace Infrastructure.Repository.Base
                 paging.PageSize = _pagingOptions.DefaultPageSize;
             
             if (paging.PageNumber < 1)
-                paging.PageSize = _pagingOptions.DefaultPageNumber;
+                paging.PageNumber = _pagingOptions.DefaultPageNumber;
             
             return source
                 .Skip((paging.PageNumber - 1) * paging.PageSize)

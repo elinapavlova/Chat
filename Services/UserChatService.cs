@@ -62,10 +62,17 @@ namespace Services
             var userInRoom = 
                 await _userRoomService.CheckUserInRoom(userChatDto.UserId, room.Data.Id);
             
-            // Если пользователь уже состоит в чате или не состоит в комнате
-            if (userInChat.Data != null || userInRoom.ErrorType.HasValue)
+            // Если пользователь не состоит в комнате или чат/пользователь не существует
+            if (userInRoom.ErrorType.HasValue || userInChat.ErrorType.HasValue)
             {
                 result.ErrorType = ErrorType.NotFound;
+                return result;
+            }
+            
+            // Если пользователь уже состоит в чате
+            if (userInChat.Data != null)
+            {
+                result.ErrorType = ErrorType.BadRequest;
                 return result;
             }
 
@@ -81,9 +88,8 @@ namespace Services
         /// Получить список чатов, в которых состоит пользователь
         /// </summary>
         /// <param name="userId"></param>
-        /// <param name="page"></param>
-        /// <param name="pageSize"></param>
-        public async Task<ResultContainer<ICollection<ChatDto>>> GetChatsUserIn(int userId, int page, int pageSize)
+        /// <param name="filter"></param>
+        public async Task<ResultContainer<ICollection<ChatDto>>> GetChatsUserIn(int userId, FilterPagingDto filter)
         {
             var result = new ResultContainer<ICollection<ChatDto>>();
             var user = await _userService.GetById(userId);
@@ -94,16 +100,11 @@ namespace Services
                 result.ErrorType = ErrorType.NotFound;
                 return result;
             }
-            
-            var filter = new BaseFilterDto
-            {
-                Paging = new FilterPagingDto {PageNumber = page, PageSize = pageSize}
-            };
 
-            var chats = await _userChatRepository.GetChatsByUserId(userId, filter);
+            var chats = await _userChatRepository.GetChatsByUserId(userId, filter.PageNumber, filter.PageSize);
             
             // Если на странице нет чатов
-            if (chats.Count == 0 && page > 1)
+            if (chats.Count == 0 && filter.PageNumber > 1)
             {
                 result.ErrorType = ErrorType.NotFound;
                 return result;
@@ -117,7 +118,8 @@ namespace Services
         /// Получить список пользователей в чате
         /// </summary>
         /// <param name="chatId"></param>
-        public async Task<ResultContainer<ICollection<UserDto>>> GetUsersByChatId(int chatId)
+        /// <param name="filter"></param>
+        public async Task<ResultContainer<ICollection<UserDto>>> GetUsersByChatId(int chatId, FilterPagingDto filter)
         {
             var result = new ResultContainer<ICollection<UserDto>>();
             var chat = await _chatService.GetById(chatId);
@@ -129,7 +131,7 @@ namespace Services
                 return result;
             }
 
-            var users = await _userChatRepository.GetUsersByChatId(chatId);
+            var users = await _userChatRepository.GetUsersByChatId(chatId, filter.PageNumber, filter.PageSize);
 
             result = _mapper.Map<ResultContainer<ICollection<UserDto>>>(users);
             return result;
@@ -161,12 +163,15 @@ namespace Services
         /// </summary>
         public async Task<ResultContainer<UserChatResponseDto>> ComeOutOfChat(int userId, int chatId)
         {
-            var result = _mapper.Map<ResultContainer<UserChatResponseDto>>
-                (await _userChatRepository.ComeOutOfChat(userId, chatId));
-            
+            var result = new ResultContainer<UserChatResponseDto>();
+            var userChat = await _userChatRepository.ComeOutOfChat(userId, chatId);
+
             // Если пользователь состоит в чате
-            if (result.Data != null)
+            if (userChat != null)
+            {
+                result = _mapper.Map<ResultContainer<UserChatResponseDto>>(userChat);
                 return result;
+            }
 
             result.ErrorType = ErrorType.NotFound;
             return result;
