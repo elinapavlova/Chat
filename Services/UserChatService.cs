@@ -145,14 +145,21 @@ namespace Services
         public async Task<ResultContainer<UserChatDto>> CheckUserInChat(int userId, int chatId)
         {
             var result = new ResultContainer<UserChatDto>();
-            var userChat = await _userChatRepository.CheckUserInChat(userId, chatId);
+            var user = await _userService.GetById(userId);
+            var chat = await _chatService.GetById(chatId);
             
-            // Если пользователь не состоит в чате
-            if (userChat == null)
+            // Если пользователь или чат не существует
+            if (user.ErrorType.HasValue || chat.ErrorType.HasValue)
             {
                 result.ErrorType = ErrorType.NotFound;
                 return result;
             }
+            
+            var userChat = await _userChatRepository.CheckUserInChat(userId, chatId);
+            
+            // Если пользователь не состоит в чате
+            if (userChat == null)
+                return result;
             
             result = _mapper.Map<ResultContainer<UserChatDto>>(userChat);
             return result;
