@@ -21,11 +21,16 @@ namespace Infrastructure.Repository
             _context = context;
         }
 
-        public async Task<List<Room>> GetRoomsByUserId(int userId, BaseFilterDto filter)
+        public async Task<List<Room>> GetRoomsByUserId(int userId, int page, int pageSize)
         {
             var rooms = new List<Room>();
             var roomsUserIn = _context.UsersRooms
                 .Where(ur => ur.UserId == userId && ur.DateComeOut == null);
+            
+            var filter = new BaseFilter
+            {
+                Paging = new FilterPagingDto {PageNumber = page, PageSize = pageSize}
+            };
             
             var filteredUsersRooms = await GetFilteredSource(roomsUserIn, filter);
 
@@ -38,15 +43,20 @@ namespace Infrastructure.Repository
             return rooms;
         }
         
-        public async Task<List<User>> GetUsersByRoomId(int roomId)
+        public async Task<List<User>> GetUsersByRoomId(int roomId, int page, int pageSize)
         {
             var users = new List<User>();
-            var usersInRoom = await _context.UsersRooms
-                .Where(ur => ur.RoomId == roomId && ur.DateComeOut == null)
-                .OrderByDescending(ur => ur.Id)
-                .ToListAsync();
+            var usersInRoom = _context.UsersRooms.Where(ur => ur.RoomId == roomId && ur.DateComeOut == null);
             
-            foreach (var user in usersInRoom)
+            var filter = new BaseFilter
+            {
+                Paging = new FilterPagingDto {PageNumber = page, PageSize = pageSize},
+                Sort = new FilterSortDto {ColumnName = "Id", IsDescending = true}
+            };
+            
+            var filteredUsersChats = await GetFilteredSource(usersInRoom, filter);
+            
+            foreach (var user in filteredUsersChats)
             {
                 user.User = await _context.Users.FirstOrDefaultAsync(u => u.Id == user.UserId);
                 users.Add(user.User);
