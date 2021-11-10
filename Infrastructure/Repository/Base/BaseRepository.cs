@@ -44,7 +44,7 @@ namespace Infrastructure.Repository.Base
 
         protected async Task<ICollection<TModel>> GetFilteredSource(IQueryable<TModel> source, TFilter filter)
         {
-            ApplySort(source, filter.Sort);
+            source = ApplySort(source, filter.Sort);
             var result = ApplyPaging(source, filter.Paging);
 
             return await result.ToListAsync();

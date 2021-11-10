@@ -45,9 +45,16 @@ namespace Infrastructure.Repository
             return filteredChats;
         }
 
-        public async Task<ICollection<Chat>> GetByRoomId(int roomId, BaseFilterDto filter)
+        public async Task<ICollection<Chat>> GetByRoomId(int roomId, int page, int pageSize)
         {
-            var chats = _context.Chats.Where(r => r.RoomId == roomId);
+            var chats = _context.Chats
+                .Where(r => r.RoomId == roomId);
+
+            var filter = new BaseFilter
+            {
+                Paging = new FilterPagingDto{PageNumber = page, PageSize = pageSize}
+            };
+            
             var filteredChats = await GetFilteredSource(chats, filter);
             
             return filteredChats;

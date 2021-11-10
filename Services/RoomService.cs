@@ -57,38 +57,34 @@ namespace Services
             return result;
         }
 
-        public async Task<ResultContainer<ICollection<RoomDto>>> GetByName(string title, int page, int pageSize)
+        public async Task<ResultContainer<ICollection<RoomDto>>> GetByName(string title, FilterPagingDto filter)
         {
-            var filter = new BaseFilterDto
-            {
-                Paging = new FilterPagingDto { PageNumber = page, PageSize = pageSize }
-            };
-            
-            var result = _mapper.Map<ResultContainer<ICollection<RoomDto>>>
-                (await _roomRepository.GetByName(title, filter));
-            
-            if (result.Data.Count != 0)
-                return result;
+            var result = new ResultContainer<ICollection<RoomDto>>();
+            var rooms = await _roomRepository.GetByName(title, filter.PageNumber, filter.PageSize);
 
-            result.ErrorType = ErrorType.NotFound;
+            if (rooms.Count == 0)
+            {
+                result.ErrorType = ErrorType.NotFound;
+                return result;
+            }
+
+            result = _mapper.Map<ResultContainer<ICollection<RoomDto>>>(rooms);
             return result;
         }
 
-        public async Task<ResultContainer<ICollection<RoomDto>>> GetPage
-            (int page, int pageSize, string columnName, bool isDescending)
+        public async Task<ResultContainer<ICollection<RoomDto>>> GetFiltered(FilterPagingDto paging, FilterSortDto sort)
         {
-            var filter = new BaseFilterDto
+            var result = new ResultContainer<ICollection<RoomDto>>();
+            var rooms = await _roomRepository.GetFiltered(paging.PageNumber, paging.PageSize, 
+                                                                             sort.ColumnName, sort.IsDescending);
+            // Если на данной странице нет комнат
+            if (rooms.Count == 0 && paging.PageNumber > 1)
             {
-                Paging = new FilterPagingDto {PageNumber = page, PageSize = pageSize},
-                Sort = new FilterSortDto {ColumnName = columnName, IsDescending = isDescending}
-            };
-            
-            var result = _mapper.Map<ResultContainer<ICollection<RoomDto>>>(await _roomRepository.GetFiltered(filter));
-            
-            if (result.Data.Count != 0) 
+                result.ErrorType = ErrorType.NotFound;
                 return result;
-            
-            result.ErrorType = ErrorType.NotFound;
+            }
+
+            result = _mapper.Map<ResultContainer<ICollection<RoomDto>>>(rooms);
             return result;
         }
 
@@ -107,19 +103,13 @@ namespace Services
             return result;
         }
 
-        public async Task<ResultContainer<RoomResponseDto>> GetByIdWithChats(int id, int page, int pageSize)
+        public async Task<ResultContainer<RoomResponseDto>> GetByIdWithChats(int id, FilterPagingDto filter)
         {
             var result = new ResultContainer<RoomResponseDto>();
-
-            var filter = new BaseFilterDto
-            {
-                Paging = new FilterPagingDto { PageNumber = page, PageSize = pageSize }
-            };
-
-            var room = await _roomRepository.GetByIdWithChats(id, filter);
+            var room = await _roomRepository.GetByIdWithChats(id, filter.PageNumber, filter.PageSize);
             
             // Если комната не найдена или на данной странице нет чатов
-            if (room == null || room.Chats == null && page > 1)
+            if (room == null || room.Chats == null && filter.PageNumber > 1)
             {
                 result.ErrorType = ErrorType.NotFound;
                 return result;
