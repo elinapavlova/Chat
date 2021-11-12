@@ -41,13 +41,16 @@ namespace ChatAPI
         
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddHttpClient<IFileStorageService, FileStorageService>("FileStorage", client =>
+            {
+                client.BaseAddress = new Uri(Configuration["BaseAddress:FileStorage:Address"]);
+            });
+            
             services.Configure<TokenOptions>(Configuration.GetSection(TokenOptions.Token));
             services.Configure<PagingOptions>(Configuration.GetSection(PagingOptions.Paging));
-            services.Configure<AppOptions>(Configuration.GetSection(AppOptions.App));
-            
+
             var tokenOptions = Configuration.GetSection(TokenOptions.Token).Get<TokenOptions>();
             var pagingOptions = Configuration.GetSection(PagingOptions.Paging).Get<PagingOptions>();
-            var appOptions = Configuration.GetSection(AppOptions.App).Get<AppOptions>();
             var signingConfigurations = new SigningConfiguration (tokenOptions.Secret);
 
             services.AddScoped<IUserRepository, UserRepository>();
@@ -62,8 +65,7 @@ namespace ChatAPI
             services.AddSingleton<IPasswordHasher, PasswordHasher>();
             services.AddSingleton(signingConfigurations);
             services.AddSingleton(pagingOptions);
-            services.AddSingleton(appOptions);
-            
+
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IRoomService, RoomService>();
             services.AddScoped<IMessageService, MessageService>();

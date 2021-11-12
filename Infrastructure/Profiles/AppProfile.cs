@@ -2,12 +2,13 @@
 using AutoMapper;
 using Infrastructure.Result;
 using Models;
-using Models.Dtos;
 using Models.Dtos.Chat;
+using Models.Dtos.File;
 using Models.Dtos.Image;
 using Models.Dtos.Message;
 using Models.Dtos.Room;
 using Models.Dtos.Token;
+using Models.Dtos.Upload;
 using Models.Dtos.User;
 using Models.Dtos.UserChat;
 using Models.Dtos.UserRoom;
@@ -124,10 +125,6 @@ namespace Infrastructure.Profiles
                 .ForMember("Data", opt =>
                     opt.MapFrom(r => r));
 
-            CreateMap<UploadResponseDto, ResultContainer<UploadResponseDto>>()
-                .ForMember("Data", opt =>
-                    opt.MapFrom(r => r));
-
             CreateMap<Chat, ResultContainer<ChatResponseDto>>()
                 .ForMember("Data", opt =>
                     opt.MapFrom(r => r));
@@ -143,6 +140,12 @@ namespace Infrastructure.Profiles
             CreateMap<int, ResultContainer<int>>()
                 .ForMember("Data", opt =>
                     opt.MapFrom(c => c));
+            
+            CreateMap<UploadRequestDto, ResultContainer<UploadRequestDto>>()
+                .ForMember("Data", opt =>
+                    opt.MapFrom(c => c));
+
+            CreateMap<FileResponseDto, ImageDto>();
         }
     }
 }

@@ -53,7 +53,8 @@ namespace Database
                     .WithMany(m => m.Images)
                     .HasForeignKey(i => i.MessageId);
 
-                image.Property(i => i.Path).IsRequired();
+                image.Property(i => i.Path).IsRequired().HasMaxLength(200);
+                image.Property(i => i.Name).IsRequired().HasMaxLength(100);
             });
             
             builder.Entity<Chat>(chat =>

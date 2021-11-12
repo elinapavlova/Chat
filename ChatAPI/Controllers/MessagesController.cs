@@ -28,13 +28,13 @@ namespace ChatAPI.Controllers
         /// <param name="message"></param>
         /// <response code="200">Return the message</response>
         /// <response code="204">If message is empty</response>
-        /// <response code="400">If files weren't uploaded successfully</response>
+        /// <response code="422">If file(s) weren't uploaded successfully</response>
         /// <response code="404">If the user is not in chat</response>
         /// <response code="401">If the User wasn't authorized</response>
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<MessageResponseDto>> Create([FromForm] MessageRequestDto message)

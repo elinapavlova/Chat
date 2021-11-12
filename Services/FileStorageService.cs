@@ -1,86 +1,128 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
+using System.Net.Http;
+using System.Net.Http.Json;
 using System.Threading.Tasks;
 using AutoMapper;
 using Infrastructure.Contracts;
-using Infrastructure.Options;
 using Infrastructure.Result;
 using Microsoft.AspNetCore.Http;
-using Models.Dtos;
+using Models.Dtos.File;
 using Models.Dtos.Image;
+using Models.Dtos.Upload;
 using Models.Error;
+using Newtonsoft.Json;
 using Services.Contracts;
 
 namespace Services
 {
     public class FileStorageService  : IFileStorageService
     {
-        private readonly IImageRepository _imageRepository;
+        private readonly IHttpClientFactory _clientFactory;
         private readonly IMapper _mapper;
-        private readonly string _basePath;
+        private readonly IImageRepository _imageRepository;
 
         public FileStorageService
         (
+            IHttpClientFactory clientFactory,
             IMapper mapper,
-            IImageRepository imageRepository,
-            AppOptions appOptions
+            IImageRepository imageRepository
         )
         {
+            _clientFactory = clientFactory;
             _mapper = mapper;
             _imageRepository = imageRepository;
-            _basePath = appOptions.BasePath;
         }
 
-        public async Task<ResultContainer<UploadResponseDto>> UploadAsync(IFormFileCollection files, int messageId)
+        public async Task<ResultContainer<UploadFilesResponseDto>> Upload(IFormFileCollection files, int messageId)
         {
-            var result = new ResultContainer<UploadResponseDto>
+            var result = new ResultContainer<UploadFilesResponseDto>();
+            var content = await ConfigureContent(files, messageId);
+
+            if (content.ErrorType.HasValue)
             {
-                Data = new UploadResponseDto
-                {
-                    Images = new List<ImageResponseDto>()
-                }
+                result.ErrorType = ErrorType.BadRequest;
+                return result;
+            }
+
+            using var client = _clientFactory.CreateClient("FileStorage");
+            var response = await client.PostAsJsonAsync("Upload", content.Data);
+            var responseMessage = await response.Content.ReadAsStringAsync();
+
+            var responseJson = JsonConvert.DeserializeObject<UploadResponseDto>(responseMessage); 
+            result = await ValidateResult(responseJson);
+
+            return result;
+        }
+
+        private async Task<ResultContainer<UploadRequestDto>> ConfigureContent(IFormFileCollection files, int messageId)
+        {
+            var content = new UploadRequestDto
+            {
+                MessageId = messageId,
+                Files = new List<FileRequestDto>()
             };
+
+            var result = new ResultContainer<UploadRequestDto>();
 
             foreach (var file in files)
             {
-                // Если такой файл уже существует или файл пустой - вернуть ошибку
-                if (File.Exists(_basePath + file.FileName) || file.Length <= 0)
+                // Если файл пустой
+                if (file.Length <= 0)
                 {
                     result.ErrorType = ErrorType.BadRequest;
                     return result;
                 }
                 
+                var stream = new MemoryStream((int) file.Length);
+                await file.CopyToAsync(stream);
+
+                content.Files.Add(new FileRequestDto
+                {
+                    File = stream.ToArray(),
+                    Name = file.FileName,
+                    ContentType = file.ContentType
+                });
+            }
+
+            result = _mapper.Map<ResultContainer<UploadRequestDto>>(content);
+            return result;
+        }
+
+        private async Task<ResultContainer<UploadFilesResponseDto>> ValidateResult(UploadResponseDto files)
+        {
+            var result = new ResultContainer<UploadFilesResponseDto>
+            {
+                Data = new UploadFilesResponseDto
+                {
+                    Images = new List<ImageResponseDto>()
+                }
+            };
+
+            if (files.ErrorType != null)
+            {
+                result.ErrorType = ErrorType.UnprocessableEntity;
+                return result;
+            }
+            
+            foreach (var file in files.Data)
+            {
                 switch (file.ContentType)
                 {
-                    case "image/jpeg" : 
-                        var image = await UploadImageAsync(file, messageId);
-                        if (image.ErrorType.HasValue)
-                            goto default;
-                        result.Data.Images.Add(image.Data);
+                    case "image/jpeg" :
+                        var res = await AddImageToDatabase(file);
+                        result.Data.Images.Add(res);
                         break;
-                    default:
-                        result.ErrorType = ErrorType.BadRequest;
-                        return result;
                 }
             }
 
             return result;
         }
 
-        private async Task<ResultContainer<ImageResponseDto>> UploadImageAsync(IFormFile file, int messageId)
+        private async Task<ImageResponseDto> AddImageToDatabase(FileResponseDto file)
         {
-            var image = new ImageDto();
-            var absoletePath = _basePath + file.FileName;
-
-            await using var stream = File.Create(absoletePath);
-            await file.CopyToAsync(stream);
-            
-            image.Path = absoletePath;
-            image.DateCreated = DateTime.Now;
-            image.MessageId = messageId;
-                            
-            var result = _mapper.Map<ResultContainer<ImageResponseDto>>(await _imageRepository.Create(image));
+            var image = _mapper.Map<ImageDto>(file); 
+            var result = _mapper.Map<ImageResponseDto>(await _imageRepository.Create(image));
             
             return result;
         }

@@ -6,9 +6,9 @@ using AutoMapper;
 using Infrastructure.Contracts;
 using Infrastructure.Result;
 using Models;
-using Models.Dtos;
 using Models.Dtos.Image;
 using Models.Dtos.Message;
+using Models.Dtos.Upload;
 using Models.Error;
 using Services.Contracts;
 
@@ -40,13 +40,16 @@ namespace Services
 
         public async Task<ResultContainer<MessageResponseDto>> GetById(int id)
         {
-            var result = _mapper.Map<ResultContainer<MessageResponseDto>>(await _messageRepository.GetById(id));
-            
-            if (result.Data == null)
+            var result = new ResultContainer<MessageResponseDto>();
+            var message = await _messageRepository.GetById(id);
+
+            if (message == null)
             {
                 result.ErrorType = ErrorType.NotFound;
                 return result;
             }
+
+            result = _mapper.Map<ResultContainer<MessageResponseDto>>(message);
 
             result.Data.Images = _mapper.Map<ICollection<ImageResponseDto>>
                 (await _imageRepository.GetByMessageId(result.Data.Id));
@@ -68,8 +71,8 @@ namespace Services
         public async Task<ResultContainer<MessageResponseDto>> Create(MessageRequestDto messageDto)
         {
             var resultMessage = await CheckUserInChat(messageDto);
-            var resultUpload = new ResultContainer<UploadResponseDto>();
-            
+            var resultUpload = new ResultContainer<UploadFilesResponseDto>();
+
             // Если пользователь не состоит в чате
             if (resultMessage.ErrorType.HasValue)
                 return resultMessage;
@@ -84,17 +87,19 @@ namespace Services
             using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
             
             resultMessage = _mapper.Map<ResultContainer<MessageResponseDto>>(await _messageRepository.Create(message));
-            
+
             // Если есть файлы - загрузить их на сервер
             if (messageDto.Files != null) 
-                resultUpload = await _uploadService.UploadAsync(messageDto.Files, resultMessage.Data.Id);
+                resultUpload = await _uploadService.Upload(messageDto.Files, resultMessage.Data.Id);
 
             // Если файлы загружены
             if (resultUpload.Data != null)
+            {
                 resultMessage.Data.Images = resultUpload.Data.Images;
-            
+            }
+
             if (resultUpload.ErrorType.HasValue)
-                resultMessage.ErrorType = ErrorType.BadRequest;
+                resultMessage.ErrorType = ErrorType.UnprocessableEntity;
             else
                 scope.Complete();
 

@@ -2,11 +2,12 @@
 using Infrastructure.Result;
 using Microsoft.AspNetCore.Http;
 using Models.Dtos;
+using Models.Dtos.Upload;
 
 namespace Services.Contracts
 {
     public interface IFileStorageService
     {
-        Task<ResultContainer<UploadResponseDto>> UploadAsync(IFormFileCollection files, int messageId);
+        Task<ResultContainer<UploadFilesResponseDto>> Upload(IFormFileCollection files, int messageId);
     }
 }

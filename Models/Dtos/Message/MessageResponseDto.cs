@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Models.Base;
+using Models.Dtos.File;
 using Models.Dtos.Image;
 
 namespace Models.Dtos.Message
@@ -11,5 +12,6 @@ namespace Models.Dtos.Message
         public int ChatId { get; set; }
         
         public ICollection<ImageResponseDto> Images { get; set; }
+        public ICollection<FileResponseDto> Unuploaded { get; set; }
     }
 }
