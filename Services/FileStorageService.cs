@@ -33,17 +33,17 @@ namespace Services
         
         public async Task<ResultContainer<ICollection<FileResponseDto>>> Upload(UploadRequestDto files)
         {
-            ResultContainer<ICollection<FileResponseDto>> res;
+            ResultContainer<ICollection<FileResponseDto>> result;
             
             // Если есть файлы с неподдерживаемым расширением
             if (!files.Files.All(f => FileExtensions.Extensions.Contains(f.ContentType)))
             {
-                res = await ConfigureBadResult(files.Files);
-                return res;
+                result = await ConfigureBadResult(files.Files);
+                return result;
             }
 
-            res = await UploadFiles(files);
-            return res;
+            result = await UploadFiles(files);
+            return result;
         }
 
         private async Task<ResultContainer<ICollection<FileResponseDto>>> ConfigureBadResult(IEnumerable<FileDto> files)
@@ -55,6 +55,7 @@ namespace Services
             
             foreach (var file in files)
             {
+                // Если у файла неподдерживаемое расширение
                 if (!FileExtensions.Extensions.Contains(file.ContentType))
                 {
                     var invalidFile = _mapper.Map<FileResponseDto>(file);
