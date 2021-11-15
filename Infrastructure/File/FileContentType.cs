@@ -2,9 +2,9 @@
 
 namespace Infrastructure.File
 {
-    public static class FileExtensions
+    public static class FileContentType
     {
-        public static readonly IList<string> Extensions = new List<string>
+        public static readonly IList<string> ContentTypes = new List<string>
         {
             "image/jpeg"
         };

@@ -35,8 +35,8 @@ namespace Services
         {
             ResultContainer<ICollection<FileResponseDto>> result;
             
-            // Если есть файлы с неподдерживаемым расширением
-            if (!files.Files.All(f => FileExtensions.Extensions.Contains(f.ContentType)))
+            // Если есть файлы с неподдерживаемым типом
+            if (!files.Files.All(f => FileContentType.ContentTypes.Contains(f.ContentType)))
             {
                 result = await ConfigureBadResult(files.Files);
                 return result;
@@ -55,8 +55,8 @@ namespace Services
             
             foreach (var file in files)
             {
-                // Если у файла неподдерживаемое расширение
-                if (!FileExtensions.Extensions.Contains(file.ContentType))
+                // Если у файла неподдерживаемый тип
+                if (!FileContentType.ContentTypes.Contains(file.ContentType))
                 {
                     var invalidFile = _mapper.Map<FileResponseDto>(file);
                     result.Data.Add(invalidFile);
