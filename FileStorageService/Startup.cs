@@ -4,7 +4,6 @@ using System.Reflection;
 using AutoMapper;
 using Infrastructure.Options;
 using Infrastructure.Profiles;
-using Infrastructure.Swagger;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -14,9 +13,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
 using Services;
-using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace FileStorageService
 {
@@ -65,10 +62,8 @@ namespace FileStorageService
             services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
             
             // Configure swagger
-            services.AddTransient<IConfigureOptions<SwaggerGenOptions>, SwaggerOptions>();
             services.AddSwaggerGen(options =>
             {
-                options.OperationFilter<SwaggerDefaultValues>();
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 options.IncludeXmlComments(xmlPath);
