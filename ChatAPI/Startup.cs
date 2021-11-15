@@ -4,7 +4,6 @@ using System.Reflection;
 using AutoMapper;
 using Database;
 using Infrastructure.Configurations;
-using Infrastructure.Configurations.Swagger;
 using Infrastructure.Contracts;
 using Infrastructure.Hashing;
 using Infrastructure.Options;
@@ -21,11 +20,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Services;
 using Services.Contracts;
-using Swashbuckle.AspNetCore.SwaggerGen;
 using TokenOptions = Infrastructure.Options.TokenOptions;
 
 namespace ChatAPI
@@ -116,13 +114,34 @@ namespace ChatAPI
                 });
 
             services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
-            
-            services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
 
             services.AddSwaggerGen(options =>
             {
-                options.OperationFilter<SwaggerDefaultValues>();
-                // Set the comments path for the Swagger JSON and UI
+                // Configure Bearer Authentication
+                options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    In = ParameterLocation.Header,
+                    Name = "Authorization",
+                    BearerFormat = "Bearer {authToken}",
+                    Description = "JSON Web Token to access resources. Example: Bearer {token}",
+                    Type = SecuritySchemeType.ApiKey
+                });
+                options.AddSecurityRequirement(
+                    new OpenApiSecurityRequirement
+                    {
+                        {
+                            new OpenApiSecurityScheme
+                            {
+                                Reference = new OpenApiReference
+                                {
+                                    Type = ReferenceType.SecurityScheme, Id = "Bearer"
+                                }
+                            },
+                            Array.Empty<string>()
+                        }
+                    });
+                
+                // Configure xml documentation file
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
                 options.IncludeXmlComments(xmlPath);
