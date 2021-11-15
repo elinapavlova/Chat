@@ -6,7 +6,8 @@ namespace Infrastructure.File
     {
         public static readonly IList<string> ContentTypes = new List<string>
         {
-            "image/jpeg"
+            "image/jpeg",
+            "image/png"
         };
     }
 }

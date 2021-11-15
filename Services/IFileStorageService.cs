@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Infrastructure.Result;
+using Microsoft.AspNetCore.Http;
 using Models.FileModel;
-using Models.UploadModel;
 
 namespace Services
 {
     public interface IFileStorageService
     {
-        Task<ResultContainer<ICollection<FileResponseDto>>> Upload(UploadRequestDto files);
+        Task<ResultContainer<ICollection<FileResponseDto>>> Upload(IFormFileCollection files);
     }
 }

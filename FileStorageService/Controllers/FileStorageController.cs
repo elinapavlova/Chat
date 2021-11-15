@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Infrastructure.Result;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Models.FileModel;
-using Models.UploadModel;
 using Services;
 
 namespace FileStorageService.Controllers
@@ -21,7 +21,7 @@ namespace FileStorageService.Controllers
         }
         
         [HttpPost("Upload")]
-        public async Task<ResultContainer<ICollection<FileResponseDto>>> Upload(UploadRequestDto files)
+        public async Task<ResultContainer<ICollection<FileResponseDto>>> Upload(IFormFileCollection files)
         {
             var result = await _fileStorageService.Upload(files);
             return result;

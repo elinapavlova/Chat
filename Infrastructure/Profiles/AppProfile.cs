@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Models.FileModel;
 
 namespace Infrastructure.Profiles
@@ -7,7 +8,9 @@ namespace Infrastructure.Profiles
     {
         public AppProfile()
         {
-            CreateMap<FileRequestDto, FileResponseDto>();
+            CreateMap<IFormFile, FileResponseDto>()
+                .ForMember("Name", opt => 
+                    opt.MapFrom(f => f.FileName));
         }
     }
 }

@@ -10,7 +10,6 @@ using Infrastructure.Options;
 using Infrastructure.Result;
 using Microsoft.AspNetCore.Http;
 using Models.FileModel;
-using Models.UploadModel;
 
 namespace Services
 {
@@ -31,14 +30,14 @@ namespace Services
             _mapper = mapper;
         }
         
-        public async Task<ResultContainer<ICollection<FileResponseDto>>> Upload(UploadRequestDto files)
+        public async Task<ResultContainer<ICollection<FileResponseDto>>> Upload(IFormFileCollection files)
         {
             ResultContainer<ICollection<FileResponseDto>> result;
-            
+
             // Если есть файлы с неподдерживаемым типом
-            if (!files.Files.All(f => FileContentType.ContentTypes.Contains(f.ContentType)))
+            if (files.Any(f => !FileContentType.ContentTypes.Contains(f.ContentType)))
             {
-                result = await ConfigureBadResult(files.Files);
+                result = await ConfigureBadResult(files);
                 return result;
             }
 
@@ -46,7 +45,7 @@ namespace Services
             return result;
         }
 
-        private async Task<ResultContainer<ICollection<FileResponseDto>>> ConfigureBadResult(IEnumerable<FileRequestDto> files)
+        private async Task<ResultContainer<ICollection<FileResponseDto>>> ConfigureBadResult(IFormFileCollection files)
         {
             var result = new ResultContainer<ICollection<FileResponseDto>>
             {
@@ -71,28 +70,24 @@ namespace Services
             return result;
         }
         
-        private async Task<ResultContainer<ICollection<FileResponseDto>>> UploadFiles(UploadRequestDto files)
+        private async Task<ResultContainer<ICollection<FileResponseDto>>> UploadFiles(IFormFileCollection files)
         {
             var result = new ResultContainer<ICollection<FileResponseDto>>
             {
                 Data = new List<FileResponseDto>()
             };
             
-            foreach (var file in files.Files)
+            foreach (var file in files)
             {
-                await using var stream = new MemoryStream(file.File);
+                var absolutePath = ConfigureAbsolutePath(file.FileName);
                 
-                var formFile = ConvertByteArrayToFormFile(stream, file);
-                var absoletePath = ConfigureAbsoletePath(file.Name);
-                
-                await using var fileStream = File.Create(absoletePath);
-                await formFile.CopyToAsync(fileStream);
+                await using var fileStream = File.Create(absolutePath);
+                await file.CopyToAsync(fileStream);
 
                 var fileResponse = _mapper.Map<FileResponseDto>(file);
                 fileResponse.DateCreated = DateTime.Now;
-                fileResponse.MessageId = files.MessageId;
                 fileResponse.ContentType = file.ContentType;
-                fileResponse.Path = absoletePath;
+                fileResponse.Path = absolutePath;
                 
                 result.Data.Add(_mapper.Map<FileResponseDto>(fileResponse));
             }
@@ -100,24 +95,15 @@ namespace Services
             return result;
         }
 
-        private static FormFile ConvertByteArrayToFormFile(Stream stream, FileRequestDto file)
-        {
-            var formFile = new FormFile(stream, 0, file.File.Length, "file", file.Name)
-            {
-                Headers = new HeaderDictionary(),
-                ContentType = file.ContentType
-            };
-
-            return formFile;
-        }
-
-        private string ConfigureAbsoletePath(string fileName)
+        private string ConfigureAbsolutePath(string fileName)
         {
             var extension = fileName.Split('.').LastOrDefault();
             var absoletePath = _basePath;
             
             switch (extension)
             {
+                case "png":
+                    goto case "jpg";
                 case "jpg":
                     _catalogues.TryGetValue("Images",  out var catalogue);
                     absoletePath += catalogue + Guid.NewGuid() + "." + extension;
