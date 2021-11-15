@@ -140,10 +140,6 @@ namespace Infrastructure.Profiles
             CreateMap<int, ResultContainer<int>>()
                 .ForMember("Data", opt =>
                     opt.MapFrom(c => c));
-            
-            CreateMap<UploadRequestDto, ResultContainer<UploadRequestDto>>()
-                .ForMember("Data", opt =>
-                    opt.MapFrom(c => c));
 
             CreateMap<FileResponseDto, ImageDto>();
         }

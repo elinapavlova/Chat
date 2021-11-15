@@ -94,9 +94,7 @@ namespace Services
 
             // Если файлы загружены
             if (resultUpload.Data != null)
-            {
                 resultMessage.Data.Images = resultUpload.Data.Images;
-            }
 
             // Если файлы загружены с ошибкой
             if (resultUpload.ErrorType.HasValue)

@@ -12,6 +12,5 @@ namespace Models.Dtos.Message
         public int ChatId { get; set; }
         
         public ICollection<ImageResponseDto> Images { get; set; }
-        public ICollection<FileResponseDto> Unuploaded { get; set; }
     }
 }

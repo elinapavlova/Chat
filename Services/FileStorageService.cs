@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
-using System.Net.Http.Json;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using AutoMapper;
 using Infrastructure.Contracts;
@@ -36,60 +36,49 @@ namespace Services
 
         public async Task<ResultContainer<UploadFilesResponseDto>> Upload(IFormFileCollection files, int messageId)
         {
+            var content = await ConfigureContent(files);
             var result = new ResultContainer<UploadFilesResponseDto>();
-            var content = await ConfigureContent(files, messageId);
-
-            if (content.ErrorType.HasValue)
+            
+            if (content == null)
             {
                 result.ErrorType = ErrorType.BadRequest;
                 return result;
             }
-
+            
             using var client = _clientFactory.CreateClient("FileStorage");
-            var response = await client.PostAsJsonAsync("Upload", content.Data);
+            var response = await client.PostAsync("Upload", content);
             var responseMessage = await response.Content.ReadAsStringAsync();
 
             var responseJson = JsonConvert.DeserializeObject<UploadResponseDto>(responseMessage); 
-            result = await ValidateResult(responseJson);
+            result = await ValidateResult(responseJson, messageId);
 
             return result;
         }
 
-        private async Task<ResultContainer<UploadRequestDto>> ConfigureContent(IFormFileCollection files, int messageId)
+        private async Task<MultipartFormDataContent> ConfigureContent(IFormFileCollection files)
         {
-            var content = new UploadRequestDto
-            {
-                MessageId = messageId,
-                Files = new List<FileRequestDto>()
-            };
+            var multiContent = new MultipartFormDataContent();
 
-            var result = new ResultContainer<UploadRequestDto>();
-
+            if (files.Count > 10)
+                return null;
+            
             foreach (var file in files)
             {
-                // Если файл пустой
                 if (file.Length <= 0)
-                {
-                    result.ErrorType = ErrorType.BadRequest;
-                    return result;
-                }
-                
-                var stream = new MemoryStream((int) file.Length);
-                await file.CopyToAsync(stream);
+                    return null;
 
-                content.Files.Add(new FileRequestDto
-                {
-                    File = stream.ToArray(),
-                    Name = file.FileName,
-                    ContentType = file.ContentType
-                });
+                await using var memoryStream = new MemoryStream();
+                await file.CopyToAsync(memoryStream);
+                
+                var streamContent = new StreamContent(file.OpenReadStream());
+                streamContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
+                multiContent.Add(streamContent, file.Name, file.FileName);
             }
 
-            result = _mapper.Map<ResultContainer<UploadRequestDto>>(content);
-            return result;
+            return multiContent;
         }
 
-        private async Task<ResultContainer<UploadFilesResponseDto>> ValidateResult(UploadResponseDto files)
+        private async Task<ResultContainer<UploadFilesResponseDto>> ValidateResult(UploadResponseDto files, int messageId)
         {
             var result = new ResultContainer<UploadFilesResponseDto>
             {
@@ -107,8 +96,11 @@ namespace Services
             
             foreach (var file in files.Data)
             {
+                file.MessageId = messageId;
                 switch (file.ContentType)
                 {
+                    case "image/png" :
+                        goto case "image/jpeg";
                     case "image/jpeg" :
                         var res = await AddImageToDatabase(file);
                         result.Data.Images.Add(res);
