@@ -98,8 +98,9 @@ namespace Services
                 resultMessage.Data.Images = resultUpload.Data.Images;
             }
 
+            // Если файлы загружены с ошибкой
             if (resultUpload.ErrorType.HasValue)
-                resultMessage.ErrorType = ErrorType.UnprocessableEntity;
+                resultMessage.ErrorType = ErrorType.BadRequest;
             else
                 scope.Complete();
 

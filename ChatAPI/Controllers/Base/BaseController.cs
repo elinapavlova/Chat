@@ -19,7 +19,6 @@ namespace ChatAPI.Controllers.Base
                     ErrorType.NotFound => NotFound(),
                     ErrorType.BadRequest => BadRequest(),
                     ErrorType.Unauthorized => Unauthorized(),
-                    ErrorType.UnprocessableEntity => UnprocessableEntity(),
                     _ => throw new ArgumentOutOfRangeException()
                 };
             }

@@ -101,7 +101,7 @@ namespace Services
 
             if (files.ErrorType != null)
             {
-                result.ErrorType = ErrorType.UnprocessableEntity;
+                result.ErrorType = ErrorType.BadRequest;
                 return result;
             }
             
