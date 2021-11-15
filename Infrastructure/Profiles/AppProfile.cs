@@ -7,7 +7,7 @@ namespace Infrastructure.Profiles
     {
         public AppProfile()
         {
-            CreateMap<FileDto, FileResponseDto>();
+            CreateMap<FileRequestDto, FileResponseDto>();
         }
     }
 }

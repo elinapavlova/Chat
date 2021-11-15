@@ -6,6 +6,6 @@ namespace Models.UploadModel
     public class UploadRequestDto
     {
         public int MessageId { get; set; }
-        public ICollection<FileDto> Files { get; set; }
+        public ICollection<FileRequestDto> Files { get; set; }
     }
 }

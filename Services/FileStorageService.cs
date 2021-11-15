@@ -46,7 +46,7 @@ namespace Services
             return result;
         }
 
-        private async Task<ResultContainer<ICollection<FileResponseDto>>> ConfigureBadResult(IEnumerable<FileDto> files)
+        private async Task<ResultContainer<ICollection<FileResponseDto>>> ConfigureBadResult(IEnumerable<FileRequestDto> files)
         {
             var result = new ResultContainer<ICollection<FileResponseDto>>
             {
@@ -100,7 +100,7 @@ namespace Services
             return result;
         }
 
-        private static FormFile ConvertByteArrayToFormFile(Stream stream, FileDto file)
+        private static FormFile ConvertByteArrayToFormFile(Stream stream, FileRequestDto file)
         {
             var formFile = new FormFile(stream, 0, file.File.Length, "file", file.Name)
             {

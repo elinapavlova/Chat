@@ -1,6 +1,6 @@
 ﻿namespace Models.FileModel
 {
-    public class FileDto
+    public class FileRequestDto
     {
         public byte[] File { get; init; }
         public string Name { get; set; }
