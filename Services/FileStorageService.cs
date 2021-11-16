@@ -37,7 +37,7 @@ namespace Services
             // Если есть файлы с неподдерживаемым типом
             if (files.Any(f => !FileContentType.ContentTypes.Contains(f.ContentType)))
             {
-                result = await ConfigureBadResult(files);
+                result = await CreateBadResult(files);
                 return result;
             }
 
@@ -45,7 +45,7 @@ namespace Services
             return result;
         }
 
-        private async Task<ResultContainer<ICollection<FileResponseDto>>> ConfigureBadResult(IFormFileCollection files)
+        private async Task<ResultContainer<ICollection<FileResponseDto>>> CreateBadResult(IFormFileCollection files)
         {
             var result = new ResultContainer<ICollection<FileResponseDto>>
             {
@@ -79,14 +79,13 @@ namespace Services
             
             foreach (var file in files)
             {
-                var absolutePath = ConfigureAbsolutePath(file.FileName);
+                var absolutePath = CreateAbsolutePath(file.FileName);
                 
                 await using var fileStream = File.Create(absolutePath);
                 await file.CopyToAsync(fileStream);
 
                 var fileResponse = _mapper.Map<FileResponseDto>(file);
                 fileResponse.DateCreated = DateTime.Now;
-                fileResponse.ContentType = file.ContentType;
                 fileResponse.Path = absolutePath;
                 
                 result.Data.Add(_mapper.Map<FileResponseDto>(fileResponse));
@@ -95,18 +94,17 @@ namespace Services
             return result;
         }
 
-        private string ConfigureAbsolutePath(string fileName)
+        private string CreateAbsolutePath(string fileName)
         {
-            var extension = fileName.Split('.').LastOrDefault();
-            var absolutePath = _basePath;
+            var extension = Path.GetExtension(fileName);
+            var absolutePath = "";
             
             switch (extension)
             {
-                case "png":
-                    goto case "jpg";
-                case "jpg":
+                case ".png":
+                case ".jpg":
                     _catalogues.TryGetValue("Images",  out var catalogue);
-                    absolutePath += catalogue + Guid.NewGuid() + "." + extension;
+                    absolutePath = Path.Combine(_basePath, catalogue, Guid.NewGuid() + extension);
                     break;
             }
 
