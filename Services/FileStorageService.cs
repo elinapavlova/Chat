@@ -98,7 +98,7 @@ namespace Services
         private string ConfigureAbsolutePath(string fileName)
         {
             var extension = fileName.Split('.').LastOrDefault();
-            var absoletePath = _basePath;
+            var absolutePath = _basePath;
             
             switch (extension)
             {
@@ -106,11 +106,11 @@ namespace Services
                     goto case "jpg";
                 case "jpg":
                     _catalogues.TryGetValue("Images",  out var catalogue);
-                    absoletePath += catalogue + Guid.NewGuid() + "." + extension;
+                    absolutePath += catalogue + Guid.NewGuid() + "." + extension;
                     break;
             }
 
-            return absoletePath;
+            return absolutePath;
         }
     }
 }
