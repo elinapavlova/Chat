@@ -90,6 +90,7 @@ namespace FileStorageService
                 configuration.UseRecommendedSerializerSettings();
                 configuration.UsePostgreSqlStorage(Configuration.GetConnectionString("HangfireConnection"));
             });
+            services.AddHangfireServer();
             
             services.AddControllers();
         }
@@ -111,8 +112,7 @@ namespace FileStorageService
                         }
                     });
             }
-
-            app.UseHangfireServer();
+            
             app.UseHangfireDashboard();
             RecurringJob.AddOrUpdate<ICheckFilesJob>("DeleteImageFromDbIfFileNotExistsJob", 
                 x => 
