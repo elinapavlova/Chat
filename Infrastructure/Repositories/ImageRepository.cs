@@ -1,6 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Database;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace Infrastructure.Repositories
 {
@@ -21,6 +23,17 @@ namespace Infrastructure.Repositories
             var image = await _context.Images.FirstOrDefaultAsync(i => i.Path == path);
             _context.Images.Remove(image);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<List<string>> GetPathsForNotExistingFiles()
+        {
+            var paths = _context.Images
+                .Select(i => i.Path)
+                .AsEnumerable()
+                .Where(path => !System.IO.File.Exists(path))
+                .ToList();
+
+            return paths;
         }
     }
 }
