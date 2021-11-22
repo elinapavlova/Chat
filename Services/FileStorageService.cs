@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
@@ -36,7 +35,7 @@ namespace Services
 
         public async Task<ResultContainer<UploadFilesResponseDto>> Upload(IFormFileCollection files, int messageId)
         {
-            var content = await ConfigureContent(files);
+            var content = await CreateContent(files);
             var result = new ResultContainer<UploadFilesResponseDto>();
             
             if (content == null)
@@ -55,7 +54,7 @@ namespace Services
             return result;
         }
 
-        private async Task<MultipartFormDataContent> ConfigureContent(IFormFileCollection files)
+        private async Task<MultipartFormDataContent> CreateContent(IFormFileCollection files)
         {
             var multiContent = new MultipartFormDataContent();
 
@@ -67,9 +66,6 @@ namespace Services
                 if (file.Length <= 0)
                     return null;
 
-                await using var memoryStream = new MemoryStream();
-                await file.CopyToAsync(memoryStream);
-                
                 var streamContent = new StreamContent(file.OpenReadStream());
                 streamContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType);
                 multiContent.Add(streamContent, file.Name, file.FileName);
@@ -100,8 +96,7 @@ namespace Services
                 switch (file.ContentType)
                 {
                     case "image/png" :
-                        goto case "image/jpeg";
-                    case "image/jpeg" :
+                    case "image/jpeg":
                         var res = await AddImageToDatabase(file);
                         result.Data.Images.Add(res);
                         break;
